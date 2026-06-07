@@ -2838,7 +2838,7 @@
         ctx.strokeStyle = 'rgba(255,255,255,.35)';
         ctx.lineWidth = 2;
         ctx.beginPath(); ctx.moveTo(CX, CY - 142); ctx.lineTo(CX, CY + 142); ctx.stroke();
-        text('마디면', CX - 30, CY - 170, 25, '#e2e8f0', 'left', '600');
+        text(tr('마디면'), CX - 30, CY - 170, 25, '#e2e8f0', 'left', '600');
         ctx.restore();
       }
       ctx.restore();
@@ -2846,7 +2846,7 @@
       const grad = ctx.createRadialGradient(CX - 8, CY - 8, 1, CX, CY, 34);
       grad.addColorStop(0, '#fff'); grad.addColorStop(.25, pal.nucleus); grad.addColorStop(1, '#7c2d12');
       circle(CX, CY, 32, grad, '#fff', 2);
-      text('핵', CX, CY, 30, '#000000');
+      text(tr('핵'), CX, CY, 30, '#000000');
 
       for (const p of state.measurePoints) {
         const color = p.orbital === '2p' && p.x > CX ? pal.cloud2 : pal.cloud;
