@@ -2220,12 +2220,12 @@
       ctx.restore();
 
       roundRect(tubeX + 35, tubeY + 101, 28, 116, 6, 'rgba(148,163,184,.45)', '#e2e8f0');
-      text('음극 −', tubeX + 49, tubeY + 264, 20, '#e2e8f0');
+      text(tr('음극 −'), tubeX + 49, tubeY + 264, 20, '#e2e8f0');
       roundRect(tubeX + 190, tubeY + 97, 20, 124, 6, 'rgba(148,163,184,.35)', '#e2e8f0');
       circle(tubeX + 200, CY, 16, '#081121', '#e2e8f0', 2);
-      text('양극 +', tubeX + 200, tubeY + 264, 20, '#e2e8f0');
+      text(tr('양극 +'), tubeX + 200, tubeY + 264, 20, '#e2e8f0');
       roundRect(tubeX + tubeW - 85, tubeY + 30, 40, tubeH - 60, 6, 'rgba(56,189,248,.18)', pal.cloud);
-      text('형광 스크린', tubeX + tubeW - 75, tubeY + tubeH - 300, 20, pal.cloud);
+      text(tr('형광 스크린'), tubeX + tubeW - 75, tubeY + tubeH - 300, 20, pal.cloud);
 
       // 상하: 전기장 판
       const plateLeft = CX - 165, plateRight = CX + 155;
@@ -2241,8 +2241,8 @@
       }
       para(plateLeft, plateTop, plateRight, plateTop, 36, 'rgba(248,250,252,.55)', 'rgba(226,232,240,.75)');
       para(plateLeft, plateBottom, plateRight, plateBottom, 36, 'rgba(248,250,252,.45)', 'rgba(226,232,240,.7)');
-      text(state.eField >= 0 ? '+ 전기장 판' : '− 전기장 판', CX, plateTop - 28, 20, state.eField >= 0 ? pal.proton : pal.electron2);
-      text(state.eField >= 0 ? '− 전기장 판' : '+ 전기장 판', CX, plateBottom + 30, 20, state.eField >= 0 ? pal.electron2 : pal.proton);
+      text(state.eField >= 0 ? tr('+ 전기장 판') : tr('− 전기장 판'), CX, plateTop - 28, 20, state.eField >= 0 ? pal.proton : pal.electron2);
+      text(state.eField >= 0 ? tr('− 전기장 판') : tr('+ 전기장 판'), CX, plateBottom + 30, 20, state.eField >= 0 ? pal.electron2 : pal.proton);
 
       // 좌우/앞뒤: 자기장 영역을 3차원처럼 표시
       ctx.save();
@@ -2257,8 +2257,8 @@
       ctx.moveTo(CX + 208, tubeY + 66); ctx.lineTo(CX + 268, tubeY + 102); ctx.lineTo(CX + 268, tubeY + tubeH - 64); ctx.lineTo(CX + 208, tubeY + tubeH - 104); ctx.closePath();
       ctx.fill(); ctx.stroke();
       ctx.restore();
-      text('자기장 B', CX - 210, tubeY + 50, 20, pal.accent3 || '#a78bfa');
-      text('자기장 B', CX + 240, tubeY + 50, 20, pal.accent3 || '#a78bfa');
+      text(tr('자기장 B'), CX - 210, tubeY + 50, 20, pal.accent3 || '#a78bfa');
+      text(tr('자기장 B'), CX + 240, tubeY + 50, 20, pal.accent3 || '#a78bfa');
       ctx.save();
       ctx.fillStyle = '#c4b5fd';
       for (let i = 0; i < 3; i++) {
@@ -2323,7 +2323,7 @@
       nucleusGrad.addColorStop(.23, pal.nucleus);
       nucleusGrad.addColorStop(1, '#7c2d12');
       circle(CX, CY, 52, nucleusGrad, '#fff', 3);
-      text('원자핵 +', CX, CY + 76, 19, '#f8fafc');
+      text(tr('원자핵 +'), CX, CY + 76, 19, '#f8fafc');
 
       // 원자모형 모드에서는 불필요한 흰 가로선/대각선을 그리지 않습니다.
       ctx.save();
@@ -2364,7 +2364,7 @@
       }
 
       circle(ex, ey, 16, pal.electron, '#fff', 2);
-      text('전자', ex + 36, ey, 16, '#f8fafc', 'left');
+      text(tr('전자'), ex + 36, ey, 16, '#f8fafc', 'left');
 
       if (state.rutherfordCollapsing || state.rutherfordCollapsed) {
         ctx.save();
@@ -2378,10 +2378,10 @@
       }
 
       const message = state.rutherfordCollapsed
-        ? '한계: 이 생각대로라면 전자가 원자핵에 빨려 들어가 원자가 안정할 수 없습니다.'
+        ? tr('한계: 이 생각대로라면 전자가 원자핵에 빨려 들어가 원자가 안정할 수 없습니다.')
         : state.rutherfordCollapsing
-          ? '전자 붕괴 시뮬레이션: 전자가 에너지를 잃고 원자핵으로 가까워집니다.'
-          : '전자 운동 보기: 러더퍼드 모형은 원자핵을 제시했지만 안정한 전자를 설명하기 어려웠습니다.';
+          ? tr('전자 붕괴 시뮬레이션: 전자가 에너지를 잃고 원자핵으로 가까워집니다.')
+          : tr('전자 운동 보기: 러더퍼드 모형은 원자핵을 제시했지만 안정한 전자를 설명하기 어려웠습니다.');
       roundRect(88, 555, 784, 100, 16, 'rgba(15,23,42,.72)', state.rutherfordCollapsed ? pal.danger : 'rgba(148,163,184,.25)');
       text(message, 480, 600, 20, '#f8fafc');
     }
@@ -2433,8 +2433,8 @@
       const pal = getPal();
       drawAtomLabel('러더퍼드: 알파 입자 산란 실험');
       roundRect(62, 108, 135, 330, 18, 'rgba(15,23,42,.65)', 'rgba(148,163,184,.25)');
-      text('알파 입자', 130, 142, 22, pal.alpha);
-      text('발사 장치', 130, 170, 22, '#cbd5e1');
+      text(tr('알파 입자'), 130, 142, 22, pal.alpha);
+      text(tr('발사 장치'), 130, 170, 22, '#cbd5e1');
       ctx.save();
       ctx.strokeStyle = 'rgba(250,204,21,.25)';
       ctx.lineWidth = 2;
@@ -2447,12 +2447,12 @@
       ctx.beginPath();
       ctx.moveTo(CX, 115); ctx.lineTo(CX, 445); ctx.stroke();
       ctx.restore();
-      text('얇은 금박', CX, 86, 23, '#facc15');
+      text(tr('얇은 금박'), CX, 86, 23, '#facc15');
 
       const nucleusGrad = ctx.createRadialGradient(CX - 10, CY - 12, 2, CX, CY, 34);
       nucleusGrad.addColorStop(0, '#fff'); nucleusGrad.addColorStop(.28, pal.nucleus); nucleusGrad.addColorStop(1, '#7c2d12');
       circle(CX, CY, 32, nucleusGrad, '#fff', 2);
-      text('+ 핵', CX + 65, CY, 23, '#f8fafc');
+      text(tr('+ 핵'), CX + 65, CY, 23, '#f8fafc');
 
       // detector arc
       ctx.save();
@@ -2462,7 +2462,7 @@
       ctx.arc(CX, CY, 325, -1.15, 1.15);
       ctx.stroke();
       ctx.restore();
-      text('검출 화면', CX + 330, CY, 20, pal.cloud, 'left');
+      text(tr('검출 화면'), CX + 330, CY, 20, pal.cloud, 'left');
 
       function strokeAlphaPath(path, type, alpha = 1) {
         if (!path || path.length < 2) return;
@@ -2559,13 +2559,13 @@
       const grad = ctx.createRadialGradient(CX - 12, CY - 12, 2, CX, CY, 45);
       grad.addColorStop(0, '#fff'); grad.addColorStop(.25, pal.nucleus); grad.addColorStop(1, '#7c2d12');
       circle(CX, CY, 42, grad, '#fff', 2);
-      text('핵', CX, CY, 18, '#fff');
+      text(tr('핵'), CX, CY, 18, '#fff');
       state.bohrAngle += .025 / state.bohrN;
       const r = radii[state.bohrN - 1];
       const ex = CX + Math.cos(state.bohrAngle) * r;
       const ey = CY + Math.sin(state.bohrAngle) * r;
       circle(ex, ey, 14, pal.electron, '#fff', 2);
-      text('전자', ex + 28, ey, 15, '#f8fafc', 'left');
+      text(tr('전자'), ex + 28, ey, 15, '#f8fafc', 'left');
 
       if (state.bohrPhoton) {
         const ph = state.bohrPhoton;
@@ -2578,7 +2578,7 @@
         const y0 = ph.kind === 'absorb' ? 125 : CY - 105;
         const y1 = ph.kind === 'absorb' ? CY - 105 : 125;
         const color = ph.kind === 'absorb' ? pal.wave : pal.cloud;
-        const label = ph.kind === 'absorb' ? '빛 흡수 방향' : '빛 방출 방향';
+        const label = ph.kind === 'absorb' ? tr('빛 흡수 방향') : tr('빛 방출 방향');
 
         // 빛 파동: 약 1초 동안 화면에 남아 학생이 방향과 파동을 충분히 볼 수 있게 합니다.
         ctx.save();
@@ -2643,7 +2643,7 @@
       state.spectrumPulse = (state.spectrumPulse + .025) % 1;
 
       roundRect(72, 104, 816, 116, 28, 'rgba(15,23,42,.70)', 'rgba(148,163,184,.3)');
-      text('수소 기체 방전관', 190, 139, 20, '#e2e8f0');
+      text(tr('수소 기체 방전관'), 190, 139, 20, '#e2e8f0');
       ctx.save();
       ctx.strokeStyle = 'rgba(56,189,248,.38)';
       ctx.lineWidth = 16;
@@ -2653,10 +2653,10 @@
       ctx.lineWidth = 7;
       ctx.beginPath(); ctx.moveTo(310, 162 + Math.sin(state.time*5)*2); ctx.lineTo(675, 162 + Math.cos(state.time*5)*2); ctx.stroke();
       ctx.restore();
-      text('전기를 가하면 수소가 특정한 색의 빛만 냅니다.', 480, 200, 20, '#cbd5e1');
+      text(tr('전기를 가하면 수소가 특정한 색의 빛만 냅니다.'), 480, 200, 20, '#cbd5e1');
 
       roundRect(88, 282, 784, 115, 14, '#050816', 'rgba(226,232,240,.55)');
-      text('프리즘을 통과한 뒤 보이는 선 스펙트럼', 480, 264, 23, '#f8fafc');
+      text(tr('프리즘을 통과한 뒤 보이는 선 스펙트럼'), 480, 264, 23, '#f8fafc');
       // spectrum ruler gradient background
       const grad = ctx.createLinearGradient(110, 0, 850, 0);
       grad.addColorStop(0, 'rgba(138,92,246,.25)');
@@ -2694,11 +2694,11 @@
       ctx.beginPath(); ctx.moveTo(ex - 38, ey - 42); ctx.lineTo(ex - 38, ey + 30); ctx.stroke();
       drawPhotonArrow(ex - 38, ey - 38, ex - 38, ey + 26, pal.wave);
       ctx.restore();
-      text('높은 에너지 → 낮은 에너지: 빛 방출', ex - 16, ey - 80, 20, '#facc15');
+      text(tr('높은 에너지 → 낮은 에너지: 빛 방출'), ex - 16, ey - 80, 20, '#facc15');
 
       roundRect(92, 500, 776, 85, 16, 'rgba(15,23,42,.72)', 'rgba(148,163,184,.25)');
-      text('수소는 모든 색을 연속적으로 내는 것이 아니라 몇 개의 선으로 된 빛을 냅니다.', 480, 525, 22, '#f8fafc');
-      text('보어 모형은 이 선 스펙트럼을 에너지 준위 전이로 설명했습니다.', 480, 555, 20, '#cbd5e1');
+      text(tr('수소는 모든 색을 연속적으로 내는 것이 아니라 몇 개의 선으로 된 빛을 냅니다.'), 480, 525, 22, '#f8fafc');
+      text(tr('보어 모형은 이 선 스펙트럼을 에너지 준위 전이로 설명했습니다.'), 480, 555, 20, '#cbd5e1');
     }
 
     function drawBohr() {
@@ -2718,7 +2718,7 @@
       const grad = ctx.createRadialGradient(CX - 12, CY - 12, 1, CX, CY, 42);
       grad.addColorStop(0, '#fff'); grad.addColorStop(.25, pal.nucleus); grad.addColorStop(1, '#7c2d12');
       circle(CX, CY, 40, grad, '#fff', 2);
-      text('핵', CX, CY, 17, '#fff');
+      text(tr('핵'), CX, CY, 17, '#fff');
 
       ctx.save();
       ctx.strokeStyle = 'rgba(226,232,240,.3)';
@@ -2755,15 +2755,15 @@
         ctx.setLineDash([5, 5]);
         ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
         ctx.restore();
-        text('파동이 매끄럽게 이어지지 않음', CX, 110, 19, pal.danger);
+        text(tr('파동이 매끄럽게 이어지지 않음'), CX, 110, 19, pal.danger);
       } else {
         text(formatMsg('deBroglieFit', { n }), CX, 110, 19, pal.wave);
       }
 
       roundRect(102, 570, 756, 85, 16, 'rgba(15,23,42,.72)', 'rgba(148,163,184,.25)');
       const msg = state.deBroglieFit
-        ? '안정한 정상파: 전자의 파동이 자기 자신과 잘 맞물립니다.'
-        : '불안정한 파동: 한 바퀴 돌아왔을 때 파동이 어긋납니다.';
+        ? tr('안정한 정상파: 전자의 파동이 자기 자신과 잘 맞물립니다.')
+        : tr('불안정한 파동: 한 바퀴 돌아왔을 때 파동이 어긋납니다.');
       text(msg, 480, 610, 22, '#f8fafc');
     }
 
@@ -2854,8 +2854,8 @@
       }
 
       roundRect(88, 560, 784, 90, 16, 'rgba(15,23,42,.74)', 'rgba(148,163,184,.25)');
-      text(`전자구름 밝기 ${state.cloudBrightness}% · 측정 횟수 ${state.measurePoints.length}회`, 480, 586, 22, '#f8fafc');
-      text('측정 전에는 확률로 설명하고, 측정하면 한 위치의 점으로 나타납니다.', 480, 620, 20, '#cbd5e1', 'center', '600');
+      text(tr(`전자구름 밝기 ${state.cloudBrightness}% · 측정 횟수 ${state.measurePoints.length}회`), 480, 586, 22, '#f8fafc');
+      text(tr('측정 전에는 확률로 설명하고, 측정하면 한 위치의 점으로 나타납니다.'), 480, 620, 20, '#cbd5e1', 'center', '600');
     }
 
     function render() {
