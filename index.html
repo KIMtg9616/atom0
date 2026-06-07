@@ -2148,7 +2148,7 @@
       circle(CX, atomY, e.radius, grad, 'rgba(255,255,255,.75)', 3);
       circle(CX - e.radius * .32, atomY - e.radius * .38, e.radius * .12, 'rgba(255,255,255,.55)');
       text(e.name, CX, atomY + e.radius + 36, 28, '#f8fafc');
-      text(`돌턴식 생각: 원소마다 원자 공의 크기와 질량이 다르다`, CX, atomY + e.radius + 68, 18, '#cbd5e1', 'center', '600');
+      text(tr(`돌턴식 생각: 원소마다 원자 공의 크기와 질량이 다르다`), CX, atomY + e.radius + 68, 18, '#cbd5e1', 'center', '600');
       roundRect(80, 556, 800, 100, 18, 'rgba(15,23,42,.65)', 'rgba(148,163,184,.25)');
       text(formatMsg('elementInfo', { name: e.name, radius: e.radius, mass: e.mass }), 110, 590, 25, '#facc15', 'left');
       text(e.note, 110, 630, 20, '#e2e8f0', 'left', '500');
@@ -2183,8 +2183,8 @@
         text('−', x, y + 1, 20, '#07111f', 'center', '900');
       }
 
-      text('양전하 덩어리', CX, CY + r + 35, 25, pal.proton);
-      text('전자들이 안에 박혀 있다고 생각', CX, CY + r + 86, 23, '#e2e8f0', 'center', '600');
+      text(tr('양전하 덩어리'), CX, CY + r + 35, 25, pal.proton);
+      text(tr('전자들이 안에 박혀 있다고 생각'), CX, CY + r + 86, 23, '#e2e8f0', 'center', '600');
     }
 
     function spawnCathodeParticles(count = 7) {
@@ -2462,7 +2462,7 @@
       ctx.arc(CX, CY, 325, -1.15, 1.15);
       ctx.stroke();
       ctx.restore();
-      text(tr('검출 화면'), CX + 330, CY, 20, pal.cloud, 'left');
+      text(tr('검출 화면'), CX + 250, CY - 250, 20, pal.cloud, 'left');
 
       function strokeAlphaPath(path, type, alpha = 1) {
         if (!path || path.length < 2) return;
@@ -2854,7 +2854,16 @@
       }
 
       roundRect(88, 560, 784, 90, 16, 'rgba(15,23,42,.74)', 'rgba(148,163,184,.25)');
-      text(tr(`전자구름 밝기 ${state.cloudBrightness}% · 측정 횟수 ${state.measurePoints.length}회`), 480, 586, 22, '#f8fafc');
+      text(
+  formatMsg('modernCount', {
+    brightness: state.cloudBrightness,
+    count: state.measurePoints.length
+  }),
+  480,
+  586,
+  22,
+  '#f8fafc'
+);
       text(tr('측정 전에는 확률로 설명하고, 측정하면 한 위치의 점으로 나타납니다.'), 480, 620, 20, '#cbd5e1', 'center', '600');
     }
 
