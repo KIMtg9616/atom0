@@ -2139,7 +2139,7 @@
       text(e.name, CX, atomY + e.radius + 36, 28, '#f8fafc');
       text(`돌턴식 생각: 원소마다 원자 공의 크기와 질량이 다르다`, CX, atomY + e.radius + 68, 18, '#cbd5e1', 'center', '600');
       roundRect(80, 556, 800, 100, 18, 'rgba(15,23,42,.65)', 'rgba(148,163,184,.25)');
-      text(formatMsg('elementInfo', { name: e.name, radius: e.radius, mass: e.mass }), 110, 483, 19, '#facc15', 'left');
+      text(formatMsg('elementInfo', { name: e.name, radius: e.radius, mass: e.mass }), 110, 590, 25, '#facc15', 'left');
       text(e.note, 110, 630, 20, '#e2e8f0', 'left', '500');
     }
 
@@ -2296,11 +2296,11 @@
         state.thomsonSingleShot = false;
       }
 
-      roundRect(105, 455, 750, 60, 16, 'rgba(15,23,42,.72)', 'rgba(148,163,184,.25)');
+      roundRect(105, 550, 750, 100, 16, 'rgba(15,23,42,.72)', 'rgba(148,163,184,.25)');
       const dirY = deflectY > .15 ? '아래쪽' : deflectY < -.15 ? '위쪽' : '거의 직진';
       const dirZ = deflectZ > .15 ? '앞쪽' : deflectZ < -.15 ? '뒤쪽' : '중앙';
       const status = state.thomsonBeamRunning ? '빔 진행 중' : '대기 중';
-      text(formatMsg('cathodeObservation', { status, dirY, dirZ }), 480, 479, state.lang === 'vi' ? 15 : 17, '#f8fafc');
+      text(formatMsg('cathodeObservation', { status, dirY, dirZ }), 480, 620, state.lang === 'vi' ? 15 : 20, '#f8fafc');
       text(formatMsg('currentPath', { dirY, dirZ }), 480, 580, 22, '#cbd5e1');
     }
 
@@ -2482,8 +2482,8 @@
         }
       }
 
-      roundRect(104, 464, 752, 58, 16, 'rgba(15,23,42,.74)', 'rgba(148,163,184,.25)');
-      text(formatMsg('alphaCounts', state.alphaCounts), 480, 493, state.lang === 'vi' ? 18 : 21, '#f8fafc');
+      roundRect(104, 550, 752, 58, 16, 'rgba(15,23,42,.74)', 'rgba(148,163,184,.25)');
+      text(formatMsg('alphaCounts', state.alphaCounts), 480, 580, state.lang === 'vi' ? 18 : 21, '#f8fafc');
     }
 
     function drawPhotonArrow(x0, y0, x1, y1, color) {
@@ -2615,8 +2615,8 @@
         if (elapsed > 1100) state.bohrPhoton = null;
       }
 
-      roundRect(94, 462, 772, 58, 16, 'rgba(15,23,42,.72)', 'rgba(148,163,184,.25)');
-      text(formatMsg('bohrEnergy', { n: state.bohrN }), 480, 491, state.lang === 'vi' ? 16 : 18, '#f8fafc');
+      roundRect(94, 600, 772, 70, 16, 'rgba(15,23,42,.72)', 'rgba(148,163,184,.25)');
+      text(formatMsg('bohrEnergy', { n: state.bohrN }), 480, 635, state.lang === 'vi' ? 16 : 20, '#f8fafc');
     }
 
     const hydrogenLines = [
