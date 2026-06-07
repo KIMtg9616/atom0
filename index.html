@@ -1,0 +1,3179 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>원자모형 변천 체험형 가상 시뮬레이션</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --bg2: #111827;
+      --panel: #172033;
+      --panel2: #1f2937;
+      --text: #f8fafc;
+      --muted: #cbd5e1;
+      --line: #334155;
+      --accent: #38bdf8;
+      --accent2: #facc15;
+      --accent3: #a78bfa;
+      --good: #34d399;
+      --warn: #fb923c;
+      --danger: #f87171;
+      --focus: #fef08a;
+      --shadow: 0 18px 45px rgba(0,0,0,.35);
+      --radius: 18px;
+      --base-font: 16px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { font-size: var(--base-font); }
+
+    body {
+      margin: 0;
+      font-family: "Pretendard", "Noto Sans KR", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top left, #1e3a8a 0%, var(--bg) 35%, #020617 100%);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    body.high-contrast {
+      --bg: #000;
+      --bg2: #050505;
+      --panel: #111;
+      --panel2: #1a1a1a;
+      --text: #fff;
+      --muted: #f2f2f2;
+      --line: #fff;
+      --accent: #00e5ff;
+      --accent2: #ffff00;
+      --accent3: #ff8cff;
+      --good: #00ff99;
+      --warn: #ffb000;
+      --danger: #ff4d4d;
+      background: #000;
+    }
+
+    body.colorblind {
+      --accent: #56b4e9;
+      --accent2: #e69f00;
+      --accent3: #cc79a7;
+      --good: #009e73;
+      --warn: #f0e442;
+      --danger: #d55e00;
+    }
+
+    a { color: var(--accent); }
+
+    .skip-link {
+      position: absolute;
+      left: -999px;
+      top: 10px;
+      background: var(--focus);
+      color: #111;
+      padding: .7rem 1rem;
+      border-radius: .7rem;
+      z-index: 999;
+    }
+    .skip-link:focus { left: 10px; }
+
+    header {
+      padding: 2rem min(5vw, 4rem) 1rem;
+    }
+
+    .hero {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.4fr .9fr;
+      gap: 1rem;
+      align-items: stretch;
+    }
+
+    .hero-card, .note-card, .toolbar, .sim-panel, .info-panel, .activity-panel, .timeline, .footer-help {
+      background: rgba(23, 32, 51, .88);
+      border: 1px solid rgba(148, 163, 184, .22);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+    }
+
+    .hero-card {
+      padding: 1.4rem;
+    }
+
+    .hero-card h1 {
+      margin: 0 0 .8rem;
+      font-size: clamp(1.7rem, 3vw, 3rem);
+      line-height: 1.2;
+    }
+
+    .hero-card p { margin: .4rem 0; color: var(--muted); }
+
+    .note-card {
+      padding: 1.2rem;
+      background: rgba(17, 24, 39, .9);
+    }
+
+    .note-card h2 {
+      margin: 0 0 .6rem;
+      font-size: 1.15rem;
+      color: var(--accent2);
+    }
+
+    .pill-row { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .8rem; }
+    .pill {
+      border: 1px solid var(--line);
+      color: var(--muted);
+      padding: .32rem .58rem;
+      border-radius: 999px;
+      font-size: .9rem;
+      background: rgba(15, 23, 42, .6);
+    }
+
+    main {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 min(5vw, 4rem) 3rem;
+    }
+
+    .toolbar {
+      margin: 1rem 0;
+      padding: 1rem;
+      display: grid;
+      gap: .9rem;
+    }
+
+    .toolbar h2, .timeline h2, .activity-panel h2, .footer-help h2 {
+      margin: 0;
+      font-size: 1.15rem;
+    }
+
+    .button-row, .control-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .55rem;
+      align-items: center;
+    }
+
+    button, input, textarea, select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+      border: 1px solid rgba(148, 163, 184, .35);
+      background: #243047;
+      color: var(--text);
+      border-radius: .8rem;
+      padding: .62rem .85rem;
+      min-height: 44px;
+      transition: transform .08s ease, background .15s ease, border-color .15s ease;
+    }
+
+    button:hover { transform: translateY(-1px); border-color: var(--accent); }
+    button:active { transform: translateY(0); }
+    button.active {
+      background: linear-gradient(135deg, rgba(56,189,248,.35), rgba(167,139,250,.25));
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(56,189,248,.18) inset;
+    }
+
+    button.primary {
+      background: linear-gradient(135deg, #0ea5e9, #7c3aed);
+      border-color: transparent;
+      font-weight: 700;
+    }
+
+    button.warning { background: rgba(251, 146, 60, .22); border-color: var(--warn); }
+    button.danger { background: rgba(248, 113, 113, .2); border-color: var(--danger); }
+    button.good { background: rgba(52, 211, 153, .17); border-color: var(--good); }
+
+    button:focus-visible, input:focus-visible, textarea:focus-visible, canvas:focus-visible, select:focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 3px;
+    }
+
+    label.switch, .slider-block {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .45rem .65rem;
+      border: 1px solid rgba(148, 163, 184, .22);
+      border-radius: .8rem;
+      background: rgba(15, 23, 42, .4);
+    }
+
+    input[type="range"] { accent-color: var(--accent); min-width: 150px; }
+    input[type="checkbox"] { width: 1.1rem; height: 1.1rem; accent-color: var(--accent); }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(330px, .75fr);
+      gap: 1rem;
+      align-items: start;
+    }
+
+    .sim-panel { padding: 1rem; }
+
+    .canvas-wrap {
+      background: #081121;
+      border: 1px solid rgba(148, 163, 184, .25);
+      border-radius: 1rem;
+      overflow: hidden;
+      position: relative;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      background: #081121;
+      min-height: 350px;
+    }
+
+    .canvas-caption {
+      margin: .65rem .1rem 0;
+      color: var(--muted);
+      font-size: .95rem;
+    }
+
+    .dynamic-controls {
+      margin-top: .9rem;
+      display: grid;
+      gap: .75rem;
+      padding: .85rem;
+      background: rgba(15, 23, 42, .52);
+      border: 1px solid rgba(148, 163, 184, .18);
+      border-radius: 1rem;
+    }
+
+    .control-group {
+      display: grid;
+      gap: .45rem;
+    }
+
+    .control-group h3 {
+      margin: 0;
+      font-size: 1rem;
+      color: var(--accent2);
+    }
+
+    .info-panel {
+      padding: 1.1rem;
+      position: sticky;
+      top: .75rem;
+    }
+
+    .info-panel h2 {
+      margin: 0 0 .45rem;
+      font-size: 1.45rem;
+      color: var(--accent2);
+    }
+
+    .info-card {
+      padding: .85rem;
+      border-radius: 1rem;
+      background: rgba(15, 23, 42, .48);
+      border: 1px solid rgba(148, 163, 184, .18);
+      margin: .75rem 0;
+    }
+
+    .info-card h3 {
+      margin: 0 0 .35rem;
+      color: var(--accent);
+      font-size: 1.05rem;
+    }
+
+    .info-card p, .info-card li { color: var(--muted); margin: .25rem 0; }
+    .info-card ul { padding-left: 1.2rem; margin: .3rem 0; }
+
+    .question {
+      font-size: 1.08rem;
+      color: var(--text) !important;
+      font-weight: 700;
+    }
+
+    .timeline {
+      margin: 1rem 0;
+      padding: 1rem;
+    }
+
+    .timeline-grid {
+      margin-top: .85rem;
+      display: grid;
+      grid-template-columns: repeat(6, minmax(130px, 1fr));
+      gap: .65rem;
+    }
+
+    .time-card {
+      border: 1px solid rgba(148, 163, 184, .24);
+      border-radius: 1rem;
+      padding: .75rem;
+      background: rgba(15, 23, 42, .42);
+      min-height: 120px;
+    }
+
+    .time-card strong { display: block; color: var(--accent2); margin-bottom: .25rem; }
+    .time-card p { margin: 0; color: var(--muted); font-size: .93rem; }
+    .time-card.active { border-color: var(--accent); background: rgba(56, 189, 248, .12); }
+
+    .activity-panel {
+      margin: 1rem 0;
+      padding: 1rem;
+    }
+
+    .activity-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: .85rem;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 170px;
+      border-radius: 1rem;
+      border: 1px solid rgba(148, 163, 184, .35);
+      background: rgba(15, 23, 42, .7);
+      color: var(--text);
+      padding: .8rem;
+      resize: vertical;
+    }
+
+    .draw-box { display: grid; gap: .6rem; }
+    #drawCanvas {
+      width: 100%;
+      height: 240px;
+      background: #fff;
+      border-radius: 1rem;
+      border: 2px solid rgba(148, 163, 184, .4);
+      touch-action: none;
+    }
+
+    .footer-help {
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+
+    .kbd {
+      display: inline-block;
+      min-width: 1.8em;
+      padding: .1rem .35rem;
+      text-align: center;
+      border-radius: .4rem;
+      border: 1px solid var(--line);
+      background: rgba(15, 23, 42, .8);
+      color: var(--text);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+    .sr-only {
+      position: absolute !important;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .hidden { display: none !important; }
+
+
+    /* Language selector */
+    .language-panel {
+      position: fixed;
+      top: 12px;
+      right: 12px;
+      z-index: 1000;
+      display: flex;
+      gap: .42rem;
+      align-items: center;
+      padding: .42rem;
+      border: 1px solid rgba(148, 163, 184, .32);
+      border-radius: 999px;
+      background: rgba(15, 23, 42, .86);
+      box-shadow: 0 12px 32px rgba(0,0,0,.32);
+      backdrop-filter: blur(10px);
+    }
+    .language-panel .lang-btn {
+      min-height: 38px;
+      min-width: 42px;
+      padding: .38rem .55rem;
+      border-radius: 999px;
+      font-size: 1.05rem;
+      line-height: 1;
+      display: inline-flex;
+      gap: .25rem;
+      align-items: center;
+      justify-content: center;
+    }
+    .language-panel .lang-btn.active {
+      border-color: var(--accent2);
+      box-shadow: 0 0 0 2px rgba(250,204,21,.25) inset;
+    }
+    .language-panel .lang-label {
+      font-size: .78rem;
+      font-weight: 800;
+    }
+    .lang-toast {
+      position: fixed;
+      top: 66px;
+      right: 14px;
+      z-index: 1001;
+      max-width: min(300px, calc(100vw - 28px));
+      padding: .72rem .9rem;
+      border-radius: .9rem;
+      border: 1px solid rgba(250, 204, 21, .55);
+      background: rgba(15, 23, 42, .94);
+      color: var(--text);
+      box-shadow: 0 14px 34px rgba(0,0,0,.34);
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-8px);
+      transition: opacity .2s ease, transform .2s ease;
+    }
+    .lang-toast.show { opacity: 1; transform: translateY(0); }
+    @media (max-width: 620px) {
+      .language-panel { left: .8rem; right: .8rem; top: .6rem; justify-content: center; border-radius: 1rem; flex-wrap: wrap; }
+      header { padding-top: 5.2rem; }
+      .lang-toast { left: .8rem; right: .8rem; top: 5rem; }
+    }
+
+    @media (max-width: 1050px) {
+      .hero, .layout, .activity-grid { grid-template-columns: 1fr; }
+      .info-panel { position: static; }
+      .timeline-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 620px) {
+      header, main { padding-left: .8rem; padding-right: .8rem; }
+      .timeline-grid { grid-template-columns: 1fr; }
+      button { width: 100%; }
+      label.switch, .slider-block { width: 100%; justify-content: space-between; }
+      input[type="range"] { min-width: 100px; width: 45%; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="language-panel" id="languagePanel" aria-label="언어 설정">
+    <button id="langKoBtn" class="lang-btn active" type="button" aria-label="한국어로 보기" title="한국어"><span aria-hidden="true">🇰🇷</span><span class="lang-label">KR</span></button>
+    <button id="langEnBtn" class="lang-btn" type="button" aria-label="View in English" title="English"><span aria-hidden="true">🇺🇸</span><span class="lang-label">EN</span></button>
+    <button id="langZhBtn" class="lang-btn" type="button" aria-label="中文" title="中文"><span aria-hidden="true">🇨🇳</span><span class="lang-label">ZH</span></button>
+    <button id="langJaBtn" class="lang-btn" type="button" aria-label="日本語" title="日本語"><span aria-hidden="true">🇯🇵</span><span class="lang-label">JA</span></button>
+    <button id="langViBtn" class="lang-btn" type="button" aria-label="Tiếng Việt" title="Tiếng Việt"><span aria-hidden="true">🇻🇳</span><span class="lang-label">VI</span></button>
+    <button id="langMoreBtn" class="lang-btn" type="button" aria-label="다른 언어 보기" title="언어 추가중"><span aria-hidden="true">🌐</span><span class="lang-label">+</span></button>
+  </div>
+  <div id="langToast" class="lang-toast" role="status" aria-live="polite">언어 추가중...</div>
+  <a class="skip-link" href="#simulation">시뮬레이션으로 바로가기</a>
+  <header>
+    <section class="hero" aria-labelledby="mainTitle">
+      <div class="hero-card">
+        <h1 id="mainTitle">원자모형 변천 체험형 가상 시뮬레이션</h1>
+        <p>원자는 눈으로 직접 보기 어렵습니다. 그래서 과학자들은 <strong>증거</strong>와 <strong>추론</strong>을 바탕으로 원자를 설명하는 모형을 만들었습니다.</p>
+        <p>이 페이지는 정답을 빨리 맞히는 곳이 아니라, 모형을 바꾸어 보며 “왜 새로운 모형이 필요했을까?”를 탐색하는 곳입니다.</p>
+        <div class="pill-row" aria-label="핵심 개념">
+          <span class="pill">원자핵</span><span class="pill">전자</span><span class="pill">전자구름</span><span class="pill">확률</span><span class="pill">오비탈</span><span class="pill">측정</span><span class="pill">모형의 한계</span>
+        </div>
+      </div>
+      <aside class="note-card" aria-labelledby="natureTitle">
+        <h2 id="natureTitle">과학의 본성</h2>
+        <p>과학 지식은 변하지 않는 암기가 아니라, 새 증거가 나오면 더 나은 설명으로 바뀔 수 있습니다.</p>
+        <p>모형은 실제 원자의 완벽한 복사본이 아니라, 현상을 이해하기 위한 <strong>설명 도구</strong>입니다.</p>
+      </aside>
+    </section>
+  </header>
+
+  <main>
+    <section class="toolbar" aria-labelledby="toolbarTitle">
+      <h2 id="toolbarTitle">1단계: 원자모형을 선택하세요</h2>
+      <div class="button-row" role="group" aria-label="원자모형 선택">
+        <button class="model-btn active" data-model="dalton">1. 돌턴</button>
+        <button class="model-btn" data-model="thomson">2. 톰슨</button>
+        <button class="model-btn" data-model="rutherford">3. 러더퍼드</button>
+        <button class="model-btn" data-model="bohr">4. 보어</button>
+        <button class="model-btn" data-model="debroglie">5. 드브로이</button>
+        <button class="model-btn" data-model="modern">6. 현대 원자모형</button>
+      </div>
+      <div class="control-row" aria-label="접근성 설정">
+        <button id="easyBtn" class="active">쉬운 설명</button>
+        <button id="deepBtn">심화 설명</button>
+        <button id="fontDownBtn" aria-label="글자 작게">글자 작게</button>
+        <button id="fontUpBtn" aria-label="글자 크게">글자 크게</button>
+        <label class="switch"><input id="contrastToggle" type="checkbox" /> 색상 대비 높이기</label>
+        <label class="switch"><input id="colorblindToggle" type="checkbox" /> 색맹 친화 색상</label>
+        <label class="switch"><input id="descToggle" type="checkbox" checked /> 그림 설명 보기</label>
+        <button id="speakBtn" class="good">음성 설명 듣기</button>
+        <button id="stopSpeakBtn" class="danger" aria-label="현재 읽고 있는 음성 설명 정지" title="음성 설명을 즉시 멈춥니다">음성 정지</button>
+      </div>
+    </section>
+
+    <section class="timeline" aria-labelledby="timelineTitle">
+      <h2 id="timelineTitle">원자모형의 변화 한눈에 보기</h2>
+      <div class="timeline-grid" id="timelineGrid"></div>
+    </section>
+
+    <section id="simulation" class="layout" aria-label="원자모형 시뮬레이션 영역">
+      <div class="sim-panel">
+        <div class="canvas-wrap">
+          <canvas id="simCanvas" width="960" height="560" tabindex="0" role="img" aria-label="선택한 원자모형을 보여 주는 시뮬레이션 그림"></canvas>
+        </div>
+        <p class="canvas-caption" id="canvasCaption">키보드: 숫자 1~6으로 모형 선택, M으로 측정, C로 점 지우기, S로 실험 실행.</p>
+        <div class="dynamic-controls" id="dynamicControls" aria-live="polite"></div>
+      </div>
+
+      <aside class="info-panel" aria-live="polite">
+        <h2 id="infoTitle">돌턴 원자모형</h2>
+        <div class="info-card">
+          <h3>핵심 생각</h3>
+          <p id="mainIdea"></p>
+        </div>
+        <div class="info-card">
+          <h3>탐구 질문</h3>
+          <p class="question" id="questionText"></p>
+        </div>
+        <div class="info-card">
+          <h3>모형의 한계</h3>
+          <p id="limitText"></p>
+        </div>
+        <div class="info-card">
+          <h3>그림 설명</h3>
+          <p id="imageDesc"></p>
+        </div>
+        <div class="info-card">
+          <h3>과학의 본성 연결</h3>
+          <p id="natureText"></p>
+        </div>
+      </aside>
+    </section>
+
+    <section class="activity-panel" aria-labelledby="activityTitle">
+      <h2 id="activityTitle">활동 후 생각 정리</h2>
+      <div class="activity-grid">
+        <div>
+          <label for="responseBox"><strong>짧은 응답</strong>: 내가 생각한 원자모형은 어떤 모습인가요?</label>
+          <textarea id="responseBox" placeholder="예: 원자는 작은 태양계처럼 보이지만, 현대 원자모형에서는 전자가 정확한 길을 도는 것이 아니라 확률적으로 나타난다고 생각했다."></textarea>
+          <div class="button-row" style="margin-top:.6rem">
+            <button id="saveTextBtn">응답을 내 컴퓨터에 저장</button>
+            <button id="clearTextBtn" class="danger">응답 지우기</button>
+          </div>
+        </div>
+        <div class="draw-box">
+          <strong>내가 생각한 원자모형 그리기</strong>
+          <canvas id="drawCanvas" width="600" height="300" aria-label="내가 생각한 원자모형을 그리는 공간"></canvas>
+          <div class="button-row">
+            <button id="clearDrawBtn" class="danger">그림 지우기</button>
+            <button id="saveDrawBtn">그림 저장</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="footer-help" aria-labelledby="helpTitle">
+      <h2 id="helpTitle">키보드 조작 안내</h2>
+      <p><span class="kbd">1</span>~<span class="kbd">6</span>: 모형 선택 · <span class="kbd">M</span>: 현대 원자모형 측정 · <span class="kbd">C</span>: 측정 점 지우기 · <span class="kbd">S</span>: 현재 실험 실행 · <span class="kbd">Tab</span>: 버튼 이동</p>
+    </section>
+  </main>
+
+  <script>
+    const canvas = document.getElementById('simCanvas');
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width;
+    const H = canvas.height;
+    const CX = W / 2;
+    const CY = H / 2;
+
+    const dynamicControls = document.getElementById('dynamicControls');
+    const infoTitle = document.getElementById('infoTitle');
+    const mainIdea = document.getElementById('mainIdea');
+    const questionText = document.getElementById('questionText');
+    const limitText = document.getElementById('limitText');
+    const imageDesc = document.getElementById('imageDesc');
+    const natureText = document.getElementById('natureText');
+    const canvasCaption = document.getElementById('canvasCaption');
+
+    const paletteDefault = {
+      electron: '#22c55e',
+      electron2: '#38bdf8',
+      nucleus: '#f97316',
+      proton: '#fb7185',
+      cloud: '#2dd4ff',
+      cloud2: '#a78bfa',
+      alpha: '#facc15',
+      wave: '#facc15',
+      line: 'rgba(226,232,240,.78)',
+      pudding: '#f6ad55'
+    };
+    const paletteColorblind = {
+      electron: '#009e73',
+      electron2: '#56b4e9',
+      nucleus: '#d55e00',
+      proton: '#cc79a7',
+      cloud: '#56b4e9',
+      cloud2: '#cc79a7',
+      alpha: '#e69f00',
+      wave: '#f0e442',
+      line: 'rgba(245,245,245,.86)',
+      pudding: '#e69f00'
+    };
+
+    const state = {
+      lang: 'ko',
+      model: 'dalton',
+      explain: 'easy',
+      font: 16,
+      colorblind: false,
+      desc: true,
+      time: 0,
+      daltonElement: 'carbon',
+      thomsonMode: 'model',
+      thomsonElectrons: [],
+      thomsonParticles: [],
+      thomsonBeamRunning: false,
+      thomsonSingleShot: false,
+      eField: 45,
+      bField: -20,
+      voltage: 65,
+      rutherfordMode: 'model',
+      rutherfordElectronAngle: 0,
+      rutherfordRadius: 160,
+      rutherfordCollapsing: false,
+      rutherfordCollapsed: false,
+      alphaParticles: [],
+      alphaTrails: [],
+      alphaCharge: 70,
+      alphaSpread: 120,
+      alphaCounts: { straight: 0, deflected: 0, bounced: 0 },
+      bohrN: 2,
+      bohrAngle: 0,
+      bohrPhoton: null,
+      bohrView: 'orbit',
+      spectrumActiveLines: [],
+      spectrumPulse: 0,
+      deBroglieN: 3,
+      deBroglieFit: true,
+      deBroglieAnimate: true,
+      modernOrbital: '1s',
+      cloudBrightness: 88,
+      measurePoints: []
+    };
+
+    const data = {
+      dalton: {
+        title: '돌턴 원자모형',
+        short: '원자를 더 쪼갤 수 없는 단단한 공처럼 생각한 모형입니다.',
+        easy: '돌턴은 원자를 아주 작은 공처럼 생각했습니다. 원소가 다르면 공의 크기나 질량이 다르다고 보았습니다.',
+        deep: '돌턴 모형은 화학 반응에서 질량이 보존되고, 물질이 일정한 비율로 결합한다는 사실을 설명하는 데 도움을 주었습니다. 하지만 원자 내부의 전자와 원자핵은 설명하지 못했습니다.',
+        question: '원자가 정말 아무 구조도 없는 단단한 공이라면, 전기 현상은 어떻게 설명할 수 있을까요?',
+        limit: '전자, 원자핵, 동위원소처럼 원자 내부 구조와 관련된 현상을 설명하지 못합니다.',
+        desc: '화면 중앙에 원소별로 색과 크기가 다른 공 모양 원자가 나타납니다.',
+        nature: '처음 모형은 단순해도 의미가 있습니다. 당시의 증거를 설명하는 좋은 출발점이었기 때문입니다.'
+      },
+      thomson: {
+        title: '톰슨 원자모형',
+        short: '양전하 덩어리 속에 전자가 박혀 있다고 생각한 건포도 푸딩 모형입니다.',
+        easy: '톰슨은 음극선 실험을 통해 전자라는 작은 입자가 있음을 알게 되었습니다. 그래서 원자 안에 전자가 들어 있다고 생각했습니다.',
+        deep: '음극선이 전기장과 자기장에서 휘어지는 현상은 음극선이 전하를 가진 입자, 즉 전자와 관련됨을 보여 주었습니다. 톰슨 모형은 원자가 내부 구조를 가진다는 점을 제시했습니다.',
+        question: '음극선이 전기장이나 자기장에서 휘어진다는 사실은 무엇을 알려 줄까요?',
+        limit: '원자핵이 있다는 사실과 알파 입자가 크게 튕겨 나오는 산란 현상을 설명하지 못했습니다.',
+        desc: '건포도 푸딩 모형에서는 둥근 양전하 덩어리 안에 전자가 점처럼 박혀 있습니다. 음극선 실험 모드에서는 전자 빔이 전기장과 자기장에 따라 휘어집니다.',
+        nature: '보이지 않는 전자는 직접 본 것이 아니라, 음극선의 움직임이라는 증거를 해석하여 이해한 것입니다.'
+      },
+      rutherford: {
+        title: '러더퍼드 원자모형',
+        short: '원자 중심에 작고 무거운 양전하 원자핵이 있다고 보는 모형입니다.',
+        easy: '러더퍼드는 알파 입자 산란 실험으로 원자 안에 아주 작고 무거운 원자핵이 있음을 생각했습니다. 전자는 원자핵 주위를 돈다고 보았습니다.',
+        deep: '대부분의 알파 입자는 금박을 통과했지만, 일부는 크게 휘거나 되돌아왔습니다. 이는 양전하와 질량이 원자의 아주 작은 중심부에 모여 있다는 원자핵 모형을 지지했습니다.',
+        question: '원자 대부분이 빈 공간이라면, 왜 어떤 알파 입자는 크게 튕겨 나왔을까요?',
+        limit: '고전 물리로는 전자가 원자핵 주위를 돌 때 에너지를 잃어 결국 원자핵으로 빨려 들어가야 합니다. 안정한 원자를 설명하기 어렵습니다.',
+        desc: '원자모형 모드에서는 전자가 원자핵 주위를 돌다가 에너지를 잃고 나선형으로 원자핵에 가까워지는 모습을 볼 수 있습니다. 산란 실험 모드에서는 알파 입자가 원자핵 근처에서 휘거나 되돌아갑니다.',
+        nature: '하나의 실험 결과가 모형을 바꾸는 강한 증거가 될 수 있습니다. 하지만 새 모형도 여전히 한계를 가질 수 있습니다.'
+      },
+      bohr: {
+        title: '보어 원자모형',
+        short: '전자가 아무 곳이나 도는 것이 아니라 정해진 에너지 궤도에 있다고 보는 모형입니다.',
+        easy: '보어는 전자가 정해진 길에서만 돌 수 있다고 생각했습니다. 전자가 궤도를 바꿀 때 빛을 흡수하거나 방출합니다.',
+        deep: '보어 모형은 수소 원자의 선스펙트럼을 설명하기 위해 전자의 에너지가 양자화되어 있다는 생각을 도입했습니다. 전자는 허용된 에너지 준위 사이를 전이합니다.',
+        question: '전자가 정해진 에너지에서만 존재한다면, 빛의 색이 띄엄띄엄 나타나는 이유를 설명할 수 있을까요?',
+        limit: '수소처럼 단순한 원자는 잘 설명하지만, 전자가 여러 개인 원자와 전자의 파동성, 확률적 존재를 충분히 설명하지 못합니다.',
+        desc: '여러 개의 원형 궤도가 있고, 전자가 선택된 에너지 준위의 궤도를 따라 움직입니다.',
+        nature: '좋은 모형은 이전 모형보다 더 많은 현상을 설명합니다. 그러나 그것이 완전한 실재 그 자체라는 뜻은 아닙니다.'
+      },
+      debroglie: {
+        title: '드브로이 원자모형',
+        short: '전자를 입자이면서 파동으로 보고, 궤도 둘레에 파동이 딱 맞아야 안정하다고 생각한 모형입니다.',
+        easy: '드브로이는 전자도 파동처럼 행동할 수 있다고 생각했습니다. 전자의 파동이 원 둘레에 끊기지 않고 딱 맞으면 안정한 궤도가 됩니다.',
+        deep: '드브로이의 물질파 개념은 보어의 허용 궤도를 파동의 정상파 조건으로 해석하게 했습니다. 원둘레가 전자 파장의 정수배일 때 파동이 자기 자신과 맞물려 안정한 상태를 이룹니다.',
+        question: '전자가 파동이라면, 왜 어떤 궤도는 가능하고 어떤 궤도는 불가능할까요?',
+        limit: '전자를 여전히 비교적 분명한 궤도와 연결해 생각합니다. 현대 양자역학의 오비탈과 확률 분포까지 완전히 보여 주지는 못합니다.',
+        desc: '원형 궤도 위에 물결 모양 파동이 그려집니다. 파장이 원둘레에 맞으면 파동이 매끄럽게 이어지고, 맞지 않으면 끊겨 보입니다.',
+        nature: '같은 보어 궤도도 입자 관점과 파동 관점으로 다르게 설명할 수 있습니다. 하나의 현상을 설명하는 모형은 여러 가지일 수 있습니다.'
+      },
+      modern: {
+        title: '현대 원자모형',
+        short: '전자를 정확한 궤도 대신, 발견될 가능성이 큰 공간인 전자구름과 오비탈로 설명합니다.',
+        easy: '현대 원자모형에서는 전자가 딱 정해진 길을 돈다고 말하지 않습니다. 전자가 어디에서 발견될 가능성이 큰지를 구름처럼 나타냅니다.',
+        deep: '현대 원자모형은 전자의 상태를 파동함수와 확률 분포로 설명합니다. 오비탈은 전자가 존재할 수 있는 확률 분포를 나타내는 설명 도구입니다. 측정하면 한 위치에서 전자가 발견되지만, 측정 전에는 확률적으로 설명합니다.',
+        question: '전자 위치를 정확히 알 수 있을까요, 아니면 발견될 가능성만 말할 수 있을까요?',
+        limit: '전자구름 그림은 확률 분포를 쉽게 보여 주는 도구입니다. 실제 전자가 흐릿한 안개라는 뜻은 아닙니다.',
+        desc: '밝은 전자구름은 전자가 발견될 가능성이 큰 곳을 뜻합니다. 측정 버튼을 여러 번 누르면 전자 점들이 쌓여 구름 모양을 만듭니다.',
+        nature: '모형은 실제의 축소판이 아니라 설명 도구입니다. 전자구름은 보이지 않는 대상을 수학, 증거, 추론으로 이해하려는 방법입니다.'
+      }
+    };
+
+    const elementData = {
+      hydrogen: { name: '수소 H', radius: 70, color: '#60a5fa', mass: '가볍다', note: '가장 단순한 원소로 생각해 볼 수 있습니다.' },
+      carbon: { name: '탄소 C', radius: 95, color: '#9ca3af', mass: '중간', note: '생명체와 연필심 등에 관련된 원소입니다.' },
+      oxygen: { name: '산소 O', radius: 90, color: '#ef4444', mass: '중간', note: '호흡과 물질의 연소에 중요합니다.' },
+      iron: { name: '철 Fe', radius: 115, color: '#f97316', mass: '무겁다', note: '금속 철을 이루는 원소입니다.' },
+      gold: { name: '금 Au', radius: 125, color: '#facc15', mass: '매우 무겁다', note: '러더퍼드 실험의 금박과 연결해 볼 수 있습니다.' }
+    };
+
+
+
+    const modelDataByLang = {
+      ko: data,
+      en: {
+      "dalton": {
+            "title": "Dalton Atomic Model",
+            "short": "Atoms were imagined as solid balls that could not be divided further.",
+            "easy": "Dalton thought atoms were like very tiny solid balls. He thought different elements had atoms with different sizes or masses.",
+            "deep": "Dalton’s model helped explain conservation of mass and fixed ratios in chemical reactions. However, it could not explain electrons, nuclei, or structures inside atoms.",
+            "question": "If atoms were truly solid balls with no inner structure, how could electrical phenomena be explained?",
+            "limit": "It cannot explain electrons, nuclei, isotopes, or other evidence about the internal structure of atoms.",
+            "desc": "A ball-shaped atom appears at the center. Its color and size change for each element.",
+            "nature": "A simple model can still be meaningful. It was a useful starting point for explaining the evidence available at the time."
+      },
+      "thomson": {
+            "title": "Thomson Atomic Model",
+            "short": "Electrons were thought to be embedded in a positively charged sphere, like raisins in pudding.",
+            "easy": "Thomson used cathode ray experiments to infer that tiny particles called electrons exist. He then thought atoms contained electrons inside them.",
+            "deep": "The bending of cathode rays in electric and magnetic fields showed that cathode rays were related to charged particles: electrons. Thomson’s model showed that atoms have internal structure.",
+            "question": "What does it tell us when cathode rays bend in electric or magnetic fields?",
+            "limit": "It could not explain the existence of a nucleus or why some alpha particles bounced back in scattering experiments.",
+            "desc": "In the plum pudding model, electrons appear as small dots inside a round positive sphere. In the cathode ray experiment, the electron beam bends when the electric and magnetic fields change.",
+            "nature": "Electrons were not seen directly. They were understood by interpreting evidence from the motion of cathode rays."
+      },
+      "rutherford": {
+            "title": "Rutherford Atomic Model",
+            "short": "Atoms were explained as having a tiny, heavy, positively charged nucleus at the center.",
+            "easy": "Rutherford used the alpha particle scattering experiment to infer that atoms have a tiny, heavy nucleus. Electrons were thought to move around the nucleus.",
+            "deep": "Most alpha particles passed through the gold foil, but a few were strongly deflected or bounced back. This supported the idea that positive charge and mass are concentrated in a very small center: the nucleus.",
+            "question": "If most of an atom is empty space, why did some alpha particles bounce back strongly?",
+            "limit": "In classical physics, an electron moving around the nucleus should lose energy and spiral into the nucleus. This model could not fully explain stable atoms.",
+            "desc": "In atomic model mode, an electron moves around the nucleus and can spiral inward as a limitation. In scattering mode, alpha particles bend or bounce near the nucleus.",
+            "nature": "One experimental result can be strong evidence for changing a model. But even a new model can still have limits."
+      },
+      "bohr": {
+            "title": "Bohr Atomic Model",
+            "short": "Electrons were placed in fixed energy orbits rather than moving anywhere they wanted.",
+            "easy": "Bohr thought electrons could move only in certain allowed paths. When an electron changes orbit, it absorbs or emits light.",
+            "deep": "Bohr introduced quantized electron energies to explain the line spectrum of hydrogen. Electrons jump between allowed energy levels.",
+            "question": "If electrons can only have certain energies, can this explain why only certain colors of light appear?",
+            "limit": "It works well for simple atoms such as hydrogen, but it cannot fully explain many-electron atoms, wave behavior, or probability.",
+            "desc": "Several circular orbits are shown, and the electron moves along the selected energy level.",
+            "nature": "A good model explains more phenomena than earlier models. But that does not mean it is the complete reality itself."
+      },
+      "debroglie": {
+            "title": "de Broglie Atomic Model",
+            "short": "Electrons were treated as both particles and waves. A stable orbit occurs when the wave fits around the circle.",
+            "easy": "de Broglie suggested that electrons can act like waves. If the electron wave fits smoothly around the orbit, the orbit is stable.",
+            "deep": "The idea of matter waves allowed Bohr’s allowed orbits to be understood as standing-wave conditions. When the circumference is a whole-number multiple of the electron wavelength, the wave matches itself.",
+            "question": "If an electron is also a wave, why are some orbits allowed and others not allowed?",
+            "limit": "It still connects the electron with a fairly clear orbit. It does not fully show the orbital probability distributions of modern quantum mechanics.",
+            "desc": "A wave is drawn around a circular orbit. If the wavelength fits, the wave joins smoothly; if not, it appears mismatched.",
+            "nature": "The same Bohr orbit can be explained from a particle viewpoint and a wave viewpoint. More than one model can explain one phenomenon."
+      },
+      "modern": {
+            "title": "Modern Atomic Model",
+            "short": "Electrons are described by electron clouds and orbitals: regions where they are likely to be found.",
+            "easy": "In the modern atomic model, electrons are not said to move along one exact path. Instead, we show where an electron is likely to be found as a cloud.",
+            "deep": "The modern atomic model describes electron states using wave functions and probability distributions. An orbital is a tool for representing where an electron is likely to be found. A measurement finds the electron at one position, but before measurement it is described probabilistically.",
+            "question": "Can we know an electron’s exact position, or can we only talk about where it is likely to be found?",
+            "limit": "The electron cloud picture is a tool for showing probability. It does not mean the electron is literally a foggy mist.",
+            "desc": "Brighter parts of the cloud mean a higher chance of finding the electron. Repeated measurements build up dots that look like an electron cloud.",
+            "nature": "A model is not a small copy of reality; it is an explanatory tool. The electron cloud helps us understand an invisible object through mathematics, evidence, and reasoning."
+      }
+},
+      zh: {
+      "dalton": {
+            "title": "道尔顿原子模型",
+            "short": "把原子看作不能再分割的坚硬小球。",
+            "easy": "道尔顿认为原子像非常小的实心球。不同元素的原子大小或质量不同。",
+            "deep": "道尔顿模型有助于解释化学反应中的质量守恒和定比规律，但不能解释电子、原子核和原子内部结构。",
+            "question": "如果原子真的是没有内部结构的实心球，电现象应怎样解释？",
+            "limit": "不能解释电子、原子核、同位素等关于原子内部结构的证据。",
+            "desc": "画面中央显示球形原子。不同元素会改变球的颜色和大小。",
+            "nature": "简单模型也有意义，因为它能解释当时已有的证据，是理解原子的起点。"
+      },
+      "thomson": {
+            "title": "汤姆孙原子模型",
+            "short": "认为电子嵌在带正电的球体中，像葡萄干布丁。",
+            "easy": "汤姆孙通过阴极射线实验推断出电子这种微小粒子的存在，因此认为原子内部含有电子。",
+            "deep": "阴极射线在电场和磁场中偏转，说明它与带电粒子有关，也就是电子。汤姆孙模型指出原子具有内部结构。",
+            "question": "阴极射线在电场或磁场中偏转，说明了什么？",
+            "limit": "不能解释原子核的存在，也不能解释某些 α 粒子被强烈反弹的散射现象。",
+            "desc": "葡萄干布丁模型中，电子像小点一样嵌在带正电的球体内。阴极射线实验中，电子束会随电场和磁场变化而偏转。",
+            "nature": "电子并不是被直接看见的，而是通过解释阴极射线运动的证据来理解的。"
+      },
+      "rutherford": {
+            "title": "卢瑟福原子模型",
+            "short": "认为原子中心有一个很小、很重、带正电的原子核。",
+            "easy": "卢瑟福通过 α 粒子散射实验推断原子内部有一个很小很重的原子核，电子在原子核周围运动。",
+            "deep": "大多数 α 粒子穿过金箔，但少数发生大角度偏转或反弹。这支持了正电荷和质量集中在很小中心的原子核模型。",
+            "question": "如果原子大部分是空的，为什么有些 α 粒子会强烈反弹？",
+            "limit": "按经典物理，绕核运动的电子会失去能量并落入原子核，因此难以解释稳定的原子。",
+            "desc": "在原子模型模式中，电子绕原子核运动并可显示向内旋入的局限。在散射模式中，α 粒子会在原子核附近偏转或反弹。",
+            "nature": "一个实验结果可以成为改变模型的有力证据。但新的模型仍可能有局限。"
+      },
+      "bohr": {
+            "title": "玻尔原子模型",
+            "short": "电子只能处在特定能量轨道上，而不是任意运动。",
+            "easy": "玻尔认为电子只能沿某些允许的轨道运动。电子改变轨道时会吸收或放出光。",
+            "deep": "玻尔为了说明氢原子的线光谱，引入了电子能量量子化的思想。电子在允许能级之间跃迁。",
+            "question": "如果电子只能具有特定能量，这能解释为什么只出现某些颜色的光吗？",
+            "limit": "能较好解释氢等简单原子，但不能充分解释多电子原子、电子波动性和概率性存在。",
+            "desc": "画面显示几个圆形轨道，电子沿所选能级轨道运动。",
+            "nature": "好的模型能比旧模型解释更多现象，但并不等于完整的真实本身。"
+      },
+      "debroglie": {
+            "title": "德布罗意原子模型",
+            "short": "把电子看作粒子也是波；当波正好绕轨道闭合时轨道稳定。",
+            "easy": "德布罗意提出电子也可以像波一样表现。当电子波在圆周上平滑连接时，轨道会稳定。",
+            "deep": "物质波思想使玻尔的允许轨道可用驻波条件来解释。当圆周长是电子波长的整数倍时，波与自身相互吻合。",
+            "question": "如果电子也是波，为什么有些轨道允许而有些不允许？",
+            "limit": "仍然把电子和较清楚的轨道联系在一起，不能完全表现现代量子力学的轨道概率分布。",
+            "desc": "圆形轨道上画出波形。波长合适时波会平滑相接，不合适时会出现错位。",
+            "nature": "同一个玻尔轨道可以从粒子观点和波观点解释。一个现象可以有多个模型。"
+      },
+      "modern": {
+            "title": "现代原子模型",
+            "short": "用电子云和轨道描述电子：电子更可能出现的区域。",
+            "easy": "现代原子模型不说电子沿着一条确定路径运动，而是用云状图表示电子更可能被发现的位置。",
+            "deep": "现代原子模型用波函数和概率分布描述电子状态。轨道是表示电子出现概率分布的说明工具。测量时电子出现在一个位置，测量前用概率描述。",
+            "question": "我们能知道电子的准确位置，还是只能说它出现的可能性？",
+            "limit": "电子云图是表示概率分布的工具，并不表示电子真的像雾一样。",
+            "desc": "云越亮表示发现电子的可能性越大。多次测量后，点会积累成类似电子云的形状。",
+            "nature": "模型不是现实的缩小复制品，而是解释工具。电子云帮助我们用数学、证据和推理理解看不见的对象。"
+      }
+},
+      ja: {
+      "dalton": {
+            "title": "ドルトンの原子模型",
+            "short": "原子をそれ以上分けられない硬い球として考えた模型です。",
+            "easy": "ドルトンは原子をとても小さな実体のある球のように考えました。元素が違えば原子の大きさや質量も違うと考えました。",
+            "deep": "ドルトンの模型は、化学反応での質量保存や一定比での結合を説明するのに役立ちました。しかし電子や原子核、原子内部の構造は説明できませんでした。",
+            "question": "原子が本当に内部構造のない硬い球なら、電気的な現象はどのように説明できるでしょうか。",
+            "limit": "電子、原子核、同位体など、原子内部の構造に関する証拠を説明できません。",
+            "desc": "画面中央に球形の原子が表示されます。元素によって色と大きさが変わります。",
+            "nature": "単純な模型にも意味があります。当時の証拠を説明する出発点になったからです。"
+      },
+      "thomson": {
+            "title": "トムソンの原子模型",
+            "short": "正に帯電した球の中に電子が埋まっている、プラムプディング模型です。",
+            "easy": "トムソンは陰極線実験から、電子という小さな粒子の存在を推論しました。そして原子の中に電子があると考えました。",
+            "deep": "陰極線が電場や磁場で曲がることは、陰極線が電荷をもつ粒子、つまり電子と関係することを示しました。トムソン模型は原子に内部構造があることを示しました。",
+            "question": "陰極線が電場や磁場で曲がることは、何を教えてくれるでしょうか。",
+            "limit": "原子核の存在や、α粒子が大きく跳ね返る散乱現象を説明できませんでした。",
+            "desc": "プラムプディング模型では、正に帯電した球の中に電子が小さな点として埋まっています。陰極線実験では、電子線が電場や磁場によって曲がります。",
+            "nature": "電子は直接見えたのではなく、陰極線の動きという証拠を解釈して理解されました。"
+      },
+      "rutherford": {
+            "title": "ラザフォードの原子模型",
+            "short": "原子の中心に小さく重い正電荷の原子核があるとする模型です。",
+            "easy": "ラザフォードはα粒子散乱実験から、原子には小さく重い原子核があると考えました。電子は原子核の周りを回ると考えられました。",
+            "deep": "多くのα粒子は金箔を通過しましたが、一部は大きく曲がったり跳ね返ったりしました。これは正電荷と質量が非常に小さな中心、原子核に集中していることを支持しました。",
+            "question": "原子の大部分が空間なら、なぜ一部のα粒子は強く跳ね返ったのでしょうか。",
+            "limit": "古典物理では、原子核の周りを回る電子はエネルギーを失い原子核に落ち込むはずなので、安定な原子を十分に説明できません。",
+            "desc": "原子模型モードでは電子が原子核の周りを動き、限界として内側へ落ち込む様子を見られます。散乱モードではα粒子が原子核の近くで曲がったり跳ね返ったりします。",
+            "nature": "一つの実験結果が模型を変える強い証拠になることがあります。しかし新しい模型にも限界があります。"
+      },
+      "bohr": {
+            "title": "ボーアの原子模型",
+            "short": "電子は自由にどこでも動くのではなく、決まったエネルギー軌道にあるとする模型です。",
+            "easy": "ボーアは電子が決まった道だけを動けると考えました。電子が軌道を変えるとき、光を吸収したり放出したりします。",
+            "deep": "ボーアは水素原子の線スペクトルを説明するために、電子のエネルギーが量子化されているという考えを導入しました。電子は許されたエネルギー準位の間を遷移します。",
+            "question": "電子が特定のエネルギーだけを持つなら、光の色が飛び飛びに現れる理由を説明できるでしょうか。",
+            "limit": "水素のような単純な原子はよく説明できますが、多電子原子、電子の波動性、確率的な存在を十分には説明できません。",
+            "desc": "複数の円形軌道があり、電子が選択されたエネルギー準位の軌道を動きます。",
+            "nature": "よい模型は以前の模型より多くの現象を説明します。しかし、それが完全な実在そのものという意味ではありません。"
+      },
+      "debroglie": {
+            "title": "ド・ブロイの原子模型",
+            "short": "電子を粒子であり波でもあると考え、波が円周にぴったり合うと安定するとする模型です。",
+            "easy": "ド・ブロイは電子も波のように振る舞うと考えました。電子の波が円周で途切れずにつながると、安定な軌道になります。",
+            "deep": "物質波の考えにより、ボーアの許された軌道を定常波の条件として解釈できるようになりました。円周が電子の波長の整数倍のとき、波は自分自身とうまく重なります。",
+            "question": "電子が波でもあるなら、なぜ可能な軌道と不可能な軌道があるのでしょうか。",
+            "limit": "電子をまだ比較的はっきりした軌道と結びつけて考えています。現代量子力学のオービタルや確率分布までは完全に示せません。",
+            "desc": "円形軌道の上に波形が描かれます。波長が合うと滑らかにつながり、合わないとずれて見えます。",
+            "nature": "同じボーア軌道も粒子の見方と波の見方で説明できます。一つの現象を説明する模型は複数あり得ます。"
+      },
+      "modern": {
+            "title": "現代の原子模型",
+            "short": "電子を正確な軌道ではなく、発見されやすい空間である電子雲やオービタルで説明します。",
+            "easy": "現代の原子模型では、電子が決まった道を回るとは言いません。電子がどこで見つかりやすいかを雲のように表します。",
+            "deep": "現代の原子模型は、電子の状態を波動関数と確率分布で説明します。オービタルは電子が存在し得る確率分布を表す説明道具です。測定すると電子は一つの位置で見つかりますが、測定前は確率で説明されます。",
+            "question": "電子の位置を正確に知ることができるでしょうか。それとも見つかる可能性だけを言えるのでしょうか。",
+            "limit": "電子雲の図は確率分布を分かりやすく示す道具です。電子が本当にぼんやりした霧という意味ではありません。",
+            "desc": "明るい電子雲は電子が見つかる可能性が高い場所を表します。測定ボタンを何度も押すと、点がたまって電子雲のようになります。",
+            "nature": "模型は実物の縮小版ではなく説明の道具です。電子雲は、見えない対象を数学・証拠・推論で理解する方法です。"
+      }
+},
+      vi: {
+      "dalton": {
+            "title": "Mô hình nguyên tử Dalton",
+            "short": "Nguyên tử được xem như những quả cầu rắn không thể chia nhỏ hơn.",
+            "easy": "Dalton cho rằng nguyên tử giống như những quả cầu rất nhỏ. Các nguyên tố khác nhau có nguyên tử với kích thước hoặc khối lượng khác nhau.",
+            "deep": "Mô hình Dalton giúp giải thích bảo toàn khối lượng và tỉ lệ kết hợp cố định trong phản ứng hóa học. Tuy nhiên, nó không giải thích được electron, hạt nhân và cấu trúc bên trong nguyên tử.",
+            "question": "Nếu nguyên tử thật sự là quả cầu rắn không có cấu trúc bên trong, ta giải thích các hiện tượng điện như thế nào?",
+            "limit": "Không giải thích được electron, hạt nhân, đồng vị và các bằng chứng về cấu trúc bên trong nguyên tử.",
+            "desc": "Một nguyên tử dạng quả cầu xuất hiện ở giữa màn hình. Màu và kích thước thay đổi theo nguyên tố.",
+            "nature": "Một mô hình đơn giản vẫn có ý nghĩa vì nó là điểm khởi đầu để giải thích các bằng chứng có lúc đó."
+      },
+      "thomson": {
+            "title": "Mô hình nguyên tử Thomson",
+            "short": "Electron được xem như nằm trong một khối cầu tích điện dương, giống nho khô trong bánh pudding.",
+            "easy": "Thomson dùng thí nghiệm tia âm cực để suy ra sự tồn tại của các hạt nhỏ gọi là electron. Vì vậy ông cho rằng nguyên tử chứa electron bên trong.",
+            "deep": "Việc tia âm cực bị lệch trong điện trường và từ trường cho thấy nó liên quan đến hạt mang điện, tức electron. Mô hình Thomson cho thấy nguyên tử có cấu trúc bên trong.",
+            "question": "Việc tia âm cực bị lệch trong điện trường hoặc từ trường cho biết điều gì?",
+            "limit": "Không giải thích được sự tồn tại của hạt nhân và việc một số hạt alpha bị bật ngược trong thí nghiệm tán xạ.",
+            "desc": "Trong mô hình bánh pudding nho khô, electron là các chấm nhỏ nằm trong khối cầu tích điện dương. Ở chế độ thí nghiệm tia âm cực, chùm electron bị lệch khi thay đổi điện trường và từ trường.",
+            "nature": "Electron không được nhìn thấy trực tiếp; nó được hiểu thông qua việc giải thích bằng chứng từ chuyển động của tia âm cực."
+      },
+      "rutherford": {
+            "title": "Mô hình nguyên tử Rutherford",
+            "short": "Nguyên tử có một hạt nhân rất nhỏ, nặng và mang điện dương ở trung tâm.",
+            "easy": "Rutherford dùng thí nghiệm tán xạ hạt alpha để suy ra nguyên tử có một hạt nhân rất nhỏ và nặng. Electron được cho là chuyển động quanh hạt nhân.",
+            "deep": "Phần lớn hạt alpha đi xuyên qua lá vàng, nhưng một số bị lệch mạnh hoặc bật ngược. Điều này ủng hộ ý tưởng rằng điện tích dương và khối lượng tập trung ở một vùng rất nhỏ: hạt nhân.",
+            "question": "Nếu phần lớn nguyên tử là khoảng trống, tại sao một số hạt alpha lại bật ngược rất mạnh?",
+            "limit": "Theo vật lí cổ điển, electron chuyển động quanh hạt nhân sẽ mất năng lượng và rơi vào hạt nhân. Mô hình này chưa giải thích đầy đủ sự ổn định của nguyên tử.",
+            "desc": "Ở chế độ mô hình nguyên tử, electron chuyển động quanh hạt nhân và có thể xoắn vào trong để thể hiện giới hạn. Ở chế độ tán xạ, hạt alpha bị lệch hoặc bật lại gần hạt nhân.",
+            "nature": "Một kết quả thí nghiệm có thể là bằng chứng mạnh để thay đổi mô hình. Nhưng mô hình mới vẫn có thể có giới hạn."
+      },
+      "bohr": {
+            "title": "Mô hình nguyên tử Bohr",
+            "short": "Electron chỉ ở các quỹ đạo năng lượng xác định, không chuyển động tùy ý.",
+            "easy": "Bohr cho rằng electron chỉ có thể chuyển động trên một số đường cho phép. Khi electron đổi quỹ đạo, nó hấp thụ hoặc phát ra ánh sáng.",
+            "deep": "Bohr đưa ra ý tưởng năng lượng electron bị lượng tử hóa để giải thích quang phổ vạch của hydro. Electron chuyển giữa các mức năng lượng được phép.",
+            "question": "Nếu electron chỉ có một số năng lượng nhất định, điều đó có giải thích vì sao chỉ xuất hiện vài màu ánh sáng không?",
+            "limit": "Giải thích khá tốt nguyên tử đơn giản như hydro, nhưng chưa giải thích đầy đủ nguyên tử nhiều electron, tính sóng và xác suất.",
+            "desc": "Một số quỹ đạo tròn được hiển thị, và electron chuyển động trên mức năng lượng được chọn.",
+            "nature": "Mô hình tốt giải thích được nhiều hiện tượng hơn mô hình cũ, nhưng không có nghĩa nó là toàn bộ thực tại."
+      },
+      "debroglie": {
+            "title": "Mô hình nguyên tử de Broglie",
+            "short": "Electron vừa là hạt vừa là sóng; quỹ đạo ổn định khi sóng khớp quanh vòng tròn.",
+            "easy": "de Broglie đề xuất rằng electron cũng có thể cư xử như sóng. Nếu sóng electron nối trơn tru quanh quỹ đạo, quỹ đạo đó ổn định.",
+            "deep": "Ý tưởng sóng vật chất cho phép hiểu các quỹ đạo cho phép của Bohr như điều kiện sóng dừng. Khi chu vi bằng một số nguyên lần bước sóng electron, sóng tự khớp với chính nó.",
+            "question": "Nếu electron cũng là sóng, tại sao có quỹ đạo được phép và có quỹ đạo không được phép?",
+            "limit": "Nó vẫn gắn electron với một quỹ đạo khá rõ. Nó chưa thể hiện đầy đủ các orbital và phân bố xác suất của cơ học lượng tử hiện đại.",
+            "desc": "Một sóng được vẽ trên quỹ đạo tròn. Nếu bước sóng khớp, sóng nối trơn tru; nếu không, sóng bị lệch pha.",
+            "nature": "Cùng một quỹ đạo Bohr có thể được giải thích theo góc nhìn hạt và góc nhìn sóng. Một hiện tượng có thể có nhiều mô hình giải thích."
+      },
+      "modern": {
+            "title": "Mô hình nguyên tử hiện đại",
+            "short": "Electron được mô tả bằng đám mây electron và orbital: vùng có khả năng tìm thấy electron.",
+            "easy": "Trong mô hình hiện đại, electron không được nói là đi theo một đường chính xác. Ta biểu diễn nơi có khả năng tìm thấy electron bằng một đám mây.",
+            "deep": "Mô hình hiện đại mô tả trạng thái electron bằng hàm sóng và phân bố xác suất. Orbital là công cụ biểu diễn nơi electron có thể được tìm thấy. Khi đo, electron xuất hiện tại một vị trí, nhưng trước khi đo nó được mô tả bằng xác suất.",
+            "question": "Ta có thể biết chính xác vị trí electron, hay chỉ có thể nói nơi nó có khả năng được tìm thấy?",
+            "limit": "Hình đám mây electron là công cụ biểu diễn xác suất. Nó không có nghĩa electron thật sự là một làn sương mờ.",
+            "desc": "Vùng sáng hơn nghĩa là khả năng tìm thấy electron cao hơn. Đo nhiều lần sẽ tạo các điểm tích tụ giống đám mây electron.",
+            "nature": "Mô hình không phải là bản sao thu nhỏ của thực tại; nó là công cụ giải thích. Đám mây electron giúp hiểu một đối tượng vô hình bằng toán học, bằng chứng và suy luận."
+      }
+}
+    };
+
+    const elementDataByLang = {
+      ko: elementData,
+      en: {
+      "hydrogen": {
+            "name": "Hydrogen H",
+            "radius": 70,
+            "color": "#60a5fa",
+            "mass": "light",
+            "note": "You can think of it as the simplest element."
+      },
+      "carbon": {
+            "name": "Carbon C",
+            "radius": 95,
+            "color": "#9ca3af",
+            "mass": "medium",
+            "note": "This element is related to living things and pencil graphite."
+      },
+      "oxygen": {
+            "name": "Oxygen O",
+            "radius": 90,
+            "color": "#ef4444",
+            "mass": "medium",
+            "note": "It is important for breathing and burning."
+      },
+      "iron": {
+            "name": "Iron Fe",
+            "radius": 115,
+            "color": "#f97316",
+            "mass": "heavy",
+            "note": "This element makes up the metal iron."
+      },
+      "gold": {
+            "name": "Gold Au",
+            "radius": 125,
+            "color": "#facc15",
+            "mass": "very heavy",
+            "note": "This connects to the gold foil in Rutherford’s experiment."
+      }
+},
+      zh: {
+      "hydrogen": {
+            "name": "氢 H",
+            "radius": 70,
+            "color": "#60a5fa",
+            "mass": "轻",
+            "note": "可以把它看作最简单的元素。"
+      },
+      "carbon": {
+            "name": "碳 C",
+            "radius": 95,
+            "color": "#9ca3af",
+            "mass": "中等",
+            "note": "与生命体和铅笔石墨有关的元素。"
+      },
+      "oxygen": {
+            "name": "氧 O",
+            "radius": 90,
+            "color": "#ef4444",
+            "mass": "中等",
+            "note": "对呼吸和燃烧很重要。"
+      },
+      "iron": {
+            "name": "铁 Fe",
+            "radius": 115,
+            "color": "#f97316",
+            "mass": "重",
+            "note": "构成金属铁的元素。"
+      },
+      "gold": {
+            "name": "金 Au",
+            "radius": 125,
+            "color": "#facc15",
+            "mass": "很重",
+            "note": "可与卢瑟福实验中的金箔联系起来。"
+      }
+},
+      ja: {
+      "hydrogen": {
+            "name": "水素 H",
+            "radius": 70,
+            "color": "#60a5fa",
+            "mass": "軽い",
+            "note": "最も単純な元素として考えることができます。"
+      },
+      "carbon": {
+            "name": "炭素 C",
+            "radius": 95,
+            "color": "#9ca3af",
+            "mass": "中くらい",
+            "note": "生物や鉛筆の黒鉛に関係する元素です。"
+      },
+      "oxygen": {
+            "name": "酸素 O",
+            "radius": 90,
+            "color": "#ef4444",
+            "mass": "中くらい",
+            "note": "呼吸や燃焼に重要です。"
+      },
+      "iron": {
+            "name": "鉄 Fe",
+            "radius": 115,
+            "color": "#f97316",
+            "mass": "重い",
+            "note": "金属の鉄をつくる元素です。"
+      },
+      "gold": {
+            "name": "金 Au",
+            "radius": 125,
+            "color": "#facc15",
+            "mass": "とても重い",
+            "note": "ラザフォード実験の金箔と結びつけられます。"
+      }
+},
+      vi: {
+      "hydrogen": {
+            "name": "Hydro H",
+            "radius": 70,
+            "color": "#60a5fa",
+            "mass": "nhẹ",
+            "note": "Có thể xem đây là nguyên tố đơn giản nhất."
+      },
+      "carbon": {
+            "name": "Carbon C",
+            "radius": 95,
+            "color": "#9ca3af",
+            "mass": "trung bình",
+            "note": "Nguyên tố này liên quan đến sinh vật và than chì trong bút chì."
+      },
+      "oxygen": {
+            "name": "Oxy O",
+            "radius": 90,
+            "color": "#ef4444",
+            "mass": "trung bình",
+            "note": "Quan trọng cho hô hấp và sự cháy."
+      },
+      "iron": {
+            "name": "Sắt Fe",
+            "radius": 115,
+            "color": "#f97316",
+            "mass": "nặng",
+            "note": "Nguyên tố tạo nên kim loại sắt."
+      },
+      "gold": {
+            "name": "Vàng Au",
+            "radius": 125,
+            "color": "#facc15",
+            "mass": "rất nặng",
+            "note": "Liên hệ với lá vàng trong thí nghiệm Rutherford."
+      }
+}
+    };
+
+    const uiText = {
+      "ko": {
+            "htmlLang": "ko",
+            "docTitle": "원자모형 변천 체험형 가상 시뮬레이션",
+            "skip": "시뮬레이션으로 바로가기",
+            "mainTitle": "원자모형 변천 체험형 가상 시뮬레이션",
+            "hero1": "원자는 눈으로 직접 보기 어렵습니다. 그래서 과학자들은 <strong>증거</strong>와 <strong>추론</strong>을 바탕으로 원자를 설명하는 모형을 만들었습니다.",
+            "hero2": "이 페이지는 정답을 빨리 맞히는 곳이 아니라, 모형을 바꾸어 보며 “왜 새로운 모형이 필요했을까?”를 탐색하는 곳입니다.",
+            "pills": [
+                  "원자핵",
+                  "전자",
+                  "전자구름",
+                  "확률",
+                  "오비탈",
+                  "측정",
+                  "모형의 한계"
+            ],
+            "natureTitle": "과학의 본성",
+            "nature1": "과학 지식은 변하지 않는 암기가 아니라, 새 증거가 나오면 더 나은 설명으로 바뀔 수 있습니다.",
+            "nature2": "모형은 실제 원자의 완벽한 복사본이 아니라, 현상을 이해하기 위한 <strong>설명 도구</strong>입니다.",
+            "toolbarTitle": "1단계: 원자모형을 선택하세요",
+            "modelButtons": [
+                  "1. 돌턴",
+                  "2. 톰슨",
+                  "3. 러더퍼드",
+                  "4. 보어",
+                  "5. 드브로이",
+                  "6. 현대 원자모형"
+            ],
+            "easy": "쉬운 설명",
+            "deep": "심화 설명",
+            "fontDown": "글자 작게",
+            "fontUp": "글자 크게",
+            "contrast": "색상 대비 높이기",
+            "colorblind": "색맹 친화 색상",
+            "descToggle": "그림 설명 보기",
+            "speak": "음성 설명 듣기",
+            "stopSpeak": "음성 정지",
+            "timelineTitle": "원자모형의 변화 한눈에 보기",
+            "caption": "키보드: 숫자 1~6으로 모형 선택, M으로 측정, C로 점 지우기, S로 실험 실행.",
+            "heads": [
+                  "핵심 생각",
+                  "탐구 질문",
+                  "모형의 한계",
+                  "그림 설명",
+                  "과학의 본성 연결"
+            ],
+            "activityTitle": "활동 후 생각 정리",
+            "responseLabel": "<strong>짧은 응답</strong>: 내가 생각한 원자모형은 어떤 모습인가요?",
+            "responsePlaceholder": "예: 원자는 작은 태양계처럼 보이지만, 현대 원자모형에서는 전자가 정확한 길을 도는 것이 아니라 확률적으로 나타난다고 생각했다.",
+            "saveText": "응답을 내 컴퓨터에 저장",
+            "clearText": "응답 지우기",
+            "drawTitle": "내가 생각한 원자모형 그리기",
+            "clearDraw": "그림 지우기",
+            "saveDraw": "그림 저장",
+            "helpTitle": "키보드 조작 안내",
+            "helpHTML": "<span class=\"kbd\">1</span>~<span class=\"kbd\">6</span>: 모형 선택 · <span class=\"kbd\">M</span>: 현대 원자모형 측정 · <span class=\"kbd\">C</span>: 측정 점 지우기 · <span class=\"kbd\">S</span>: 현재 실험 실행 · <span class=\"kbd\">Tab</span>: 버튼 이동",
+            "langLabel": "언어",
+            "moreMsg": "언어 추가중...",
+            "speechLang": "ko-KR",
+            "questionPrefix": "탐구 질문."
+      },
+      "en": {
+            "htmlLang": "en",
+            "docTitle": "Interactive Virtual Simulation: Changes in Atomic Models",
+            "skip": "Skip to simulation",
+            "mainTitle": "Interactive Virtual Simulation: Changes in Atomic Models",
+            "hero1": "Atoms are difficult to see directly. Scientists use <strong>evidence</strong> and <strong>reasoning</strong> to build models that explain atoms.",
+            "hero2": "This page is not for quickly guessing the answer. It is a place to explore why new atomic models were needed.",
+            "pills": [
+                  "Nucleus",
+                  "Electron",
+                  "Electron cloud",
+                  "Probability",
+                  "Orbital",
+                  "Measurement",
+                  "Limits of models"
+            ],
+            "natureTitle": "Nature of Science",
+            "nature1": "Scientific knowledge is not fixed memorization. When new evidence appears, explanations can change and improve.",
+            "nature2": "A model is not a perfect copy of a real atom. It is an <strong>explanatory tool</strong> for understanding phenomena.",
+            "toolbarTitle": "Step 1: Choose an atomic model",
+            "modelButtons": [
+                  "1. Dalton",
+                  "2. Thomson",
+                  "3. Rutherford",
+                  "4. Bohr",
+                  "5. de Broglie",
+                  "6. Modern atomic model"
+            ],
+            "easy": "Easy explanation",
+            "deep": "Advanced explanation",
+            "fontDown": "Smaller text",
+            "fontUp": "Larger text",
+            "contrast": "High contrast",
+            "colorblind": "Color-blind friendly colors",
+            "descToggle": "Show image description",
+            "speak": "Listen to explanation",
+            "stopSpeak": "Stop voice",
+            "timelineTitle": "Atomic models at a glance",
+            "caption": "Keyboard: press 1–6 to choose a model, M to measure, C to clear dots, and S to run the current experiment.",
+            "heads": [
+                  "Main idea",
+                  "Question to explore",
+                  "Limit of the model",
+                  "Image description",
+                  "Connection to the Nature of Science"
+            ],
+            "activityTitle": "Reflect after the activity",
+            "responseLabel": "<strong>Short response</strong>: What does your atomic model look like?",
+            "responsePlaceholder": "Example: At first atoms looked like a tiny solar system, but in the modern model electrons do not follow exact paths. They appear probabilistically.",
+            "saveText": "Save response to my computer",
+            "clearText": "Clear response",
+            "drawTitle": "Draw my own atomic model",
+            "clearDraw": "Clear drawing",
+            "saveDraw": "Save drawing",
+            "helpTitle": "Keyboard guide",
+            "helpHTML": "<span class=\"kbd\">1</span>–<span class=\"kbd\">6</span>: choose model · <span class=\"kbd\">M</span>: measure in modern model · <span class=\"kbd\">C</span>: clear dots · <span class=\"kbd\">S</span>: run current experiment · <span class=\"kbd\">Tab</span>: move between buttons",
+            "langLabel": "Language",
+            "moreMsg": "Adding languages...",
+            "speechLang": "en-US",
+            "questionPrefix": "Question to explore."
+      },
+      "zh": {
+            "htmlLang": "zh-CN",
+            "docTitle": "原子模型演变互动虚拟模拟",
+            "skip": "跳到模拟区",
+            "mainTitle": "原子模型演变互动虚拟模拟",
+            "hero1": "原子很难用眼睛直接看见。因此科学家根据<strong>证据</strong>和<strong>推理</strong>建立解释原子的模型。",
+            "hero2": "本页面不是为了快速找出唯一答案，而是通过切换模型来探索“为什么需要新的模型”。",
+            "pills": [
+                  "原子核",
+                  "电子",
+                  "电子云",
+                  "概率",
+                  "轨道",
+                  "测量",
+                  "模型的局限"
+            ],
+            "natureTitle": "科学的本质",
+            "nature1": "科学知识不是一成不变的背诵内容。出现新证据时，解释可以改变并变得更好。",
+            "nature2": "模型不是真实原子的完美复制品，而是理解现象的<strong>解释工具</strong>。",
+            "toolbarTitle": "第1步：选择原子模型",
+            "modelButtons": [
+                  "1. 道尔顿",
+                  "2. 汤姆孙",
+                  "3. 卢瑟福",
+                  "4. 玻尔",
+                  "5. 德布罗意",
+                  "6. 现代原子模型"
+            ],
+            "easy": "简单说明",
+            "deep": "深入说明",
+            "fontDown": "缩小文字",
+            "fontUp": "放大文字",
+            "contrast": "提高颜色对比",
+            "colorblind": "色盲友好颜色",
+            "descToggle": "显示图像说明",
+            "speak": "听语音说明",
+            "stopSpeak": "停止语音",
+            "timelineTitle": "原子模型变化一览",
+            "caption": "键盘：按 1–6 选择模型，M 测量，C 清除点，S 运行当前实验。",
+            "heads": [
+                  "核心想法",
+                  "探究问题",
+                  "模型的局限",
+                  "图像说明",
+                  "与科学本质的联系"
+            ],
+            "activityTitle": "活动后整理想法",
+            "responseLabel": "<strong>简短回答</strong>：你认为原子模型是什么样子？",
+            "responsePlaceholder": "例：原子起初像一个小太阳系，但在现代模型中，电子不是沿精确路径运动，而是以概率方式出现。",
+            "saveText": "将回答保存到电脑",
+            "clearText": "清除回答",
+            "drawTitle": "画出我想到的原子模型",
+            "clearDraw": "清除绘图",
+            "saveDraw": "保存绘图",
+            "helpTitle": "键盘操作指南",
+            "helpHTML": "<span class=\"kbd\">1</span>–<span class=\"kbd\">6</span>：选择模型 · <span class=\"kbd\">M</span>：现代模型测量 · <span class=\"kbd\">C</span>：清除点 · <span class=\"kbd\">S</span>：运行当前实验 · <span class=\"kbd\">Tab</span>：移动按钮",
+            "langLabel": "语言",
+            "moreMsg": "正在添加更多语言...",
+            "speechLang": "zh-CN",
+            "questionPrefix": "探究问题。"
+      },
+      "ja": {
+            "htmlLang": "ja",
+            "docTitle": "原子模型の変遷 体験型仮想シミュレーション",
+            "skip": "シミュレーションへ移動",
+            "mainTitle": "原子模型の変遷 体験型仮想シミュレーション",
+            "hero1": "原子は目で直接見ることが難しい対象です。科学者は<strong>証拠</strong>と<strong>推論</strong>にもとづいて、原子を説明する模型を作りました。",
+            "hero2": "このページは正解をすばやく当てる場所ではなく、模型を切り替えながら「なぜ新しい模型が必要だったのか」を探究する場所です。",
+            "pills": [
+                  "原子核",
+                  "電子",
+                  "電子雲",
+                  "確率",
+                  "オービタル",
+                  "測定",
+                  "模型の限界"
+            ],
+            "natureTitle": "科学の本質",
+            "nature1": "科学知識は固定された暗記ではありません。新しい証拠が出ると、説明はよりよいものへ変わることがあります。",
+            "nature2": "模型は実際の原子の完全なコピーではなく、現象を理解するための<strong>説明の道具</strong>です。",
+            "toolbarTitle": "第1段階：原子模型を選びましょう",
+            "modelButtons": [
+                  "1. ドルトン",
+                  "2. トムソン",
+                  "3. ラザフォード",
+                  "4. ボーア",
+                  "5. ド・ブロイ",
+                  "6. 現代の原子模型"
+            ],
+            "easy": "やさしい説明",
+            "deep": "くわしい説明",
+            "fontDown": "文字を小さく",
+            "fontUp": "文字を大きく",
+            "contrast": "色のコントラストを上げる",
+            "colorblind": "色覚に配慮した色",
+            "descToggle": "図の説明を表示",
+            "speak": "音声説明を聞く",
+            "stopSpeak": "音声停止",
+            "timelineTitle": "原子模型の変化を一覧で見る",
+            "caption": "キーボード：1〜6で模型選択、Mで測定、Cで点を消去、Sで現在の実験を実行。",
+            "heads": [
+                  "中心となる考え",
+                  "探究の問い",
+                  "模型の限界",
+                  "図の説明",
+                  "科学の本質とのつながり"
+            ],
+            "activityTitle": "活動後のふり返り",
+            "responseLabel": "<strong>短い回答</strong>：あなたが考える原子模型はどのような姿ですか。",
+            "responsePlaceholder": "例：原子は小さな太陽系のように見えるが、現代の模型では電子は正確な道を回るのではなく、確率的に現れると考えた。",
+            "saveText": "回答を保存",
+            "clearText": "回答を消す",
+            "drawTitle": "自分が考える原子模型を描く",
+            "clearDraw": "絵を消す",
+            "saveDraw": "絵を保存",
+            "helpTitle": "キーボード操作案内",
+            "helpHTML": "<span class=\"kbd\">1</span>〜<span class=\"kbd\">6</span>：模型選択 · <span class=\"kbd\">M</span>：現代模型で測定 · <span class=\"kbd\">C</span>：点を消去 · <span class=\"kbd\">S</span>：現在の実験を実行 · <span class=\"kbd\">Tab</span>：ボタン移動",
+            "langLabel": "言語",
+            "moreMsg": "言語を追加中...",
+            "speechLang": "ja-JP",
+            "questionPrefix": "探究の問い。"
+      },
+      "vi": {
+            "htmlLang": "vi",
+            "docTitle": "Mô phỏng tương tác về sự thay đổi của mô hình nguyên tử",
+            "skip": "Đi tới phần mô phỏng",
+            "mainTitle": "Mô phỏng tương tác về sự thay đổi của mô hình nguyên tử",
+            "hero1": "Nguyên tử rất khó nhìn thấy trực tiếp. Vì vậy các nhà khoa học dùng <strong>bằng chứng</strong> và <strong>suy luận</strong> để tạo mô hình giải thích nguyên tử.",
+            "hero2": "Trang này không nhằm đoán nhanh đáp án, mà để khám phá vì sao cần các mô hình nguyên tử mới.",
+            "pills": [
+                  "Hạt nhân",
+                  "Electron",
+                  "Đám mây electron",
+                  "Xác suất",
+                  "Orbital",
+                  "Phép đo",
+                  "Giới hạn của mô hình"
+            ],
+            "natureTitle": "Bản chất của khoa học",
+            "nature1": "Tri thức khoa học không phải là điều bất biến để học thuộc. Khi có bằng chứng mới, cách giải thích có thể thay đổi và tốt hơn.",
+            "nature2": "Mô hình không phải bản sao hoàn hảo của nguyên tử thật, mà là <strong>công cụ giải thích</strong> để hiểu hiện tượng.",
+            "toolbarTitle": "Bước 1: Chọn mô hình nguyên tử",
+            "modelButtons": [
+                  "1. Dalton",
+                  "2. Thomson",
+                  "3. Rutherford",
+                  "4. Bohr",
+                  "5. de Broglie",
+                  "6. Mô hình hiện đại"
+            ],
+            "easy": "Giải thích dễ hiểu",
+            "deep": "Giải thích nâng cao",
+            "fontDown": "Chữ nhỏ hơn",
+            "fontUp": "Chữ lớn hơn",
+            "contrast": "Tăng tương phản màu",
+            "colorblind": "Màu thân thiện với mù màu",
+            "descToggle": "Hiện mô tả hình",
+            "speak": "Nghe giải thích",
+            "stopSpeak": "Dừng giọng nói",
+            "timelineTitle": "Xem nhanh sự thay đổi mô hình nguyên tử",
+            "caption": "Bàn phím: nhấn 1–6 để chọn mô hình, M để đo, C để xóa điểm, S để chạy thí nghiệm hiện tại.",
+            "heads": [
+                  "Ý tưởng chính",
+                  "Câu hỏi khám phá",
+                  "Giới hạn của mô hình",
+                  "Mô tả hình",
+                  "Liên hệ với bản chất khoa học"
+            ],
+            "activityTitle": "Suy ngẫm sau hoạt động",
+            "responseLabel": "<strong>Trả lời ngắn</strong>: Mô hình nguyên tử bạn nghĩ đến trông như thế nào?",
+            "responsePlaceholder": "Ví dụ: Ban đầu nguyên tử giống một hệ Mặt Trời nhỏ, nhưng trong mô hình hiện đại electron không đi theo đường chính xác mà xuất hiện theo xác suất.",
+            "saveText": "Lưu câu trả lời vào máy tính",
+            "clearText": "Xóa câu trả lời",
+            "drawTitle": "Vẽ mô hình nguyên tử của em",
+            "clearDraw": "Xóa hình vẽ",
+            "saveDraw": "Lưu hình vẽ",
+            "helpTitle": "Hướng dẫn dùng bàn phím",
+            "helpHTML": "<span class=\"kbd\">1</span>–<span class=\"kbd\">6</span>: chọn mô hình · <span class=\"kbd\">M</span>: đo trong mô hình hiện đại · <span class=\"kbd\">C</span>: xóa điểm · <span class=\"kbd\">S</span>: chạy thí nghiệm hiện tại · <span class=\"kbd\">Tab</span>: chuyển giữa các nút",
+            "langLabel": "Ngôn ngữ",
+            "moreMsg": "Đang thêm ngôn ngữ...",
+            "speechLang": "vi-VN",
+            "questionPrefix": "Câu hỏi khám phá."
+      }
+};
+    const translationText = {
+      "en": {
+            "그림 설명 보기가 꺼져 있습니다.": "Image descriptions are turned off.",
+            "돌턴: 단단한 공 모형": "Dalton: solid sphere model",
+            "돌턴식 생각: 원소마다 원자 공의 크기와 질량이 다르다": "Dalton’s idea: atoms of each element differ in size and mass",
+            "톰슨: 건포도 푸딩 모형": "Thomson: plum pudding model",
+            "양전하 덩어리": "positive charge sphere",
+            "전자들이 안에 박혀 있다고 생각": "Electrons were thought to be embedded inside.",
+            "톰슨: 음극선 실험": "Thomson: cathode ray experiment",
+            "음극 −": "cathode −",
+            "양극 +": "anode +",
+            "형광 스크린": "fluorescent screen",
+            "+ 전기장 판": "+ electric plate",
+            "− 전기장 판": "− electric plate",
+            "자기장 B": "magnetic field B",
+            "아래쪽": "downward",
+            "위쪽": "upward",
+            "거의 직진": "almost straight",
+            "앞쪽": "toward front",
+            "뒤쪽": "toward back",
+            "중앙": "center",
+            "빔 진행 중": "beam running",
+            "대기 중": "ready",
+            "러더퍼드: 원자핵과 전자 운동": "Rutherford: nucleus and electron motion",
+            "원자핵 +": "nucleus +",
+            "전자": "electron",
+            "한계: 이 생각대로라면 전자가 원자핵에 빨려 들어가 원자가 안정할 수 없습니다.": "Limit: in this model, the electron would spiral into the nucleus, so the atom could not stay stable.",
+            "전자 붕괴 시뮬레이션: 전자가 에너지를 잃고 원자핵으로 가까워집니다.": "Collapse simulation: the electron loses energy and moves closer to the nucleus.",
+            "전자 운동 보기: 러더퍼드 모형은 원자핵을 제시했지만 안정한 전자를 설명하기 어려웠습니다.": "Electron motion: Rutherford’s model introduced the nucleus, but it struggled to explain stable electrons.",
+            "러더퍼드: 알파 입자 산란 실험": "Rutherford: alpha particle scattering experiment",
+            "알파 입자": "alpha particles",
+            "발사 장치": "launcher",
+            "얇은 금박": "thin gold foil",
+            "+ 핵": "+ nucleus",
+            "검출 화면": "detector screen",
+            "보어: 정해진 에너지 궤도": "Bohr: fixed energy orbits",
+            "핵": "nucleus",
+            "빛 흡수 방향": "light absorption direction",
+            "빛 방출 방향": "light emission direction",
+            "보어: 수소 선 스펙트럼": "Bohr: hydrogen line spectrum",
+            "수소 기체 방전관": "hydrogen discharge tube",
+            "전기를 가하면 수소가 특정한 색의 빛만 냅니다.": "When electricity is applied, hydrogen emits only certain colors of light.",
+            "프리즘을 통과한 뒤 보이는 선 스펙트럼": "Line spectrum after passing through a prism",
+            "높은 에너지 → 낮은 에너지: 빛 방출": "high energy → low energy: light emission",
+            "수소는 모든 색을 연속적으로 내는 것이 아니라 몇 개의 선으로 된 빛을 냅니다.": "Hydrogen does not emit a continuous rainbow; it emits a few bright lines.",
+            "보어 모형은 이 선 스펙트럼을 에너지 준위 전이로 설명했습니다.": "Bohr’s model explained these lines as transitions between energy levels.",
+            "드브로이: 전자의 물질파": "de Broglie: matter wave of an electron",
+            "파동이 매끄럽게 이어지지 않음": "The wave does not connect smoothly",
+            "안정한 정상파: 전자의 파동이 자기 자신과 잘 맞물립니다.": "Stable standing wave: the electron wave matches itself.",
+            "불안정한 파동: 한 바퀴 돌아왔을 때 파동이 어긋납니다.": "Unstable wave: after one round, the wave is out of step.",
+            "현대: 전자구름과 오비탈": "Modern: electron cloud and orbital",
+            "마디면": "node plane",
+            "측정 전에는 확률로 설명하고, 측정하면 한 위치의 점으로 나타납니다.": "Before measurement, we use probability. When measured, the electron appears as a dot at one position.",
+            "돌턴 체험: 원소에 따라 공의 크기와 색 바꾸기": "Dalton activity: change ball size and color by element",
+            "돌턴 모형: 원소 버튼을 누르면 공 모양 원자의 크기와 색이 바뀝니다.": "Dalton model: press an element button to change the size and color of the ball-shaped atom.",
+            "톰슨 체험 선택": "Choose a Thomson activity",
+            "원자모형 보기: 건포도 푸딩 모형": "Atomic model: plum pudding model",
+            "실험 보기: 음극선 실험": "Experiment: cathode ray experiment",
+            "건포도 푸딩 조작": "Plum pudding controls",
+            "전자 1개 추가": "Add one electron",
+            "전자 1개 제거": "Remove one electron",
+            "처음 상태": "Reset",
+            "음극선 조작": "Cathode ray controls",
+            "전기장": "Electric field",
+            "자기장": "Magnetic field",
+            "가속 전압": "Accelerating voltage",
+            "빔 시작": "Start beam",
+            "빔 한 번 쏘기": "Shoot one beam",
+            "정지": "Stop",
+            "전자 빔 지우기": "Clear electron beam",
+            "톰슨 모형: 원자모형 보기와 음극선 실험을 버튼으로 전환할 수 있습니다.": "Thomson model: switch between the atomic model and the cathode ray experiment.",
+            "러더퍼드 체험 선택": "Choose a Rutherford activity",
+            "원자모형 보기: 전자 운동과 붕괴 한계": "Atomic model: electron motion and collapse limit",
+            "실험 보기: 알파 입자 산란 실험": "Experiment: alpha particle scattering",
+            "전자 운동 조작": "Electron motion controls",
+            "전자 붕괴 시뮬레이션 시작": "Start electron collapse simulation",
+            "전자 궤도 다시 시작": "Restart electron orbit",
+            "알파 입자 산란 조작": "Alpha scattering controls",
+            "원자핵 양전하 세기": "Nuclear positive charge",
+            "알파 빔 퍼짐": "Alpha beam spread",
+            "알파 입자 1개 쏘기": "Fire 1 alpha particle",
+            "알파 입자 50개 쏘기": "Fire 50 alpha particles",
+            "경로 지우기": "Clear paths",
+            "러더퍼드 모형: 원자모형 모드에서는 전자의 운동과 붕괴 한계를, 실험 모드에서는 알파 입자 산란을 볼 수 있습니다.": "Rutherford model: see electron motion and collapse in model mode, or alpha scattering in experiment mode.",
+            "보어 체험 선택": "Choose a Bohr activity",
+            "원자모형 보기: 에너지 준위": "Atomic model: energy levels",
+            "실험 보기: 수소 선 스펙트럼": "Experiment: hydrogen line spectrum",
+            "에너지 준위와 빛 조작": "Energy level and light controls",
+            "빛 흡수: 높은 궤도": "Absorb light: higher orbit",
+            "빛 방출: 낮은 궤도": "Emit light: lower orbit",
+            "수소 선 스펙트럼 조작": "Hydrogen line spectrum controls",
+            "전체 선 보기": "Show all lines",
+            "보어 모형: 에너지 준위 전이와 수소 선 스펙트럼을 탐구할 수 있습니다.": "Bohr model: explore energy transitions and the hydrogen line spectrum.",
+            "드브로이 체험: 전자 물질파와 정상파 조건": "de Broglie activity: electron matter waves and standing-wave conditions",
+            "맞지 않는 파장 보기": "Show mismatched wavelength",
+            "파장이 딱 맞게 보기": "Show fitting wavelength",
+            "파동 멈추기": "Pause wave",
+            "파동 움직이기": "Animate wave",
+            "드브로이 모형: 전자를 파동으로 보고, 파동이 원 둘레에 매끄럽게 이어지는 조건을 탐구합니다.": "de Broglie model: view the electron as a wave and explore when it connects smoothly around the circle.",
+            "현대 원자모형 체험: 오비탈과 측정": "Modern atomic model activity: orbitals and measurement",
+            "1s 전자구름": "1s electron cloud",
+            "2p 오비탈": "2p orbital",
+            "전자구름 밝기": "Electron cloud brightness",
+            "측정 1회": "Measure once",
+            "측정 10회": "Measure 10 times",
+            "측정 100회": "Measure 100 times",
+            "측정 점 지우기": "Clear measurement dots",
+            "현대 원자모형: 밝은 곳은 전자가 발견될 가능성이 큰 곳입니다. 측정을 반복하면 점들이 전자구름 모양으로 쌓입니다.": "Modern atomic model: brighter regions mean a higher chance of finding the electron. Repeated measurements build up cloud-like dots.",
+            "이 브라우저에서는 음성 설명을 지원하지 않을 수 있습니다.": "This browser may not support voice narration.",
+            "아직 작성한 내용이 없습니다.": "No response has been written yet."
+      },
+      "zh": {
+            "그림 설명 보기가 꺼져 있습니다.": "图像说明已关闭。",
+            "돌턴: 단단한 공 모형": "道尔顿：实心球模型",
+            "돌턴식 생각: 원소마다 원자 공의 크기와 질량이 다르다": "道尔顿的想法：不同元素的原子大小和质量不同",
+            "톰슨: 건포도 푸딩 모형": "汤姆孙：葡萄干布丁模型",
+            "양전하 덩어리": "正电荷团",
+            "전자들이 안에 박혀 있다고 생각": "认为电子嵌在内部",
+            "톰슨: 음극선 실험": "汤姆孙：阴极射线实验",
+            "음극 −": "阴极 −",
+            "양극 +": "阳极 +",
+            "형광 스크린": "荧光屏",
+            "+ 전기장 판": "+ 电场板",
+            "− 전기장 판": "− 电场板",
+            "자기장 B": "磁场 B",
+            "아래쪽": "向下",
+            "위쪽": "向上",
+            "거의 직진": "几乎直进",
+            "앞쪽": "向前",
+            "뒤쪽": "向后",
+            "중앙": "中央",
+            "빔 진행 중": "电子束进行中",
+            "대기 중": "待机中",
+            "러더퍼드: 원자핵과 전자 운동": "卢瑟福：原子核与电子运动",
+            "원자핵 +": "原子核 +",
+            "전자": "电子",
+            "한계: 이 생각대로라면 전자가 원자핵에 빨려 들어가 원자가 안정할 수 없습니다.": "局限：按这种想法，电子会落入原子核，原子无法稳定。",
+            "전자 붕괴 시뮬레이션: 전자가 에너지를 잃고 원자핵으로 가까워집니다.": "电子坍缩模拟：电子失去能量并靠近原子核。",
+            "전자 운동 보기: 러더퍼드 모형은 원자핵을 제시했지만 안정한 전자를 설명하기 어려웠습니다.": "电子运动：卢瑟福模型提出原子核，但难以解释稳定电子。",
+            "러더퍼드: 알파 입자 산란 실험": "卢瑟福：α粒子散射实验",
+            "알파 입자": "α粒子",
+            "발사 장치": "发射装置",
+            "얇은 금박": "薄金箔",
+            "+ 핵": "+ 核",
+            "검출 화면": "探测屏",
+            "보어: 정해진 에너지 궤도": "玻尔：固定能量轨道",
+            "핵": "核",
+            "빛 흡수 방향": "吸收光方向",
+            "빛 방출 방향": "发光方向",
+            "보어: 수소 선 스펙트럼": "玻尔：氢线光谱",
+            "수소 기체 방전관": "氢气放电管",
+            "전기를 가하면 수소가 특정한 색의 빛만 냅니다.": "通电后，氢只发出特定颜色的光。",
+            "프리즘을 통과한 뒤 보이는 선 스펙트럼": "通过棱镜后看到的线光谱",
+            "높은 에너지 → 낮은 에너지: 빛 방출": "高能量 → 低能量：放出光",
+            "수소는 모든 색을 연속적으로 내는 것이 아니라 몇 개의 선으로 된 빛을 냅니다.": "氢不会连续发出所有颜色，而是发出几条亮线。",
+            "보어 모형은 이 선 스펙트럼을 에너지 준위 전이로 설명했습니다.": "玻尔模型用能级跃迁解释这些谱线。",
+            "드브로이: 전자의 물질파": "德布罗意：电子的物质波",
+            "파동이 매끄럽게 이어지지 않음": "波不能平滑连接",
+            "안정한 정상파: 전자의 파동이 자기 자신과 잘 맞물립니다.": "稳定驻波：电子波与自身吻合。",
+            "불안정한 파동: 한 바퀴 돌아왔을 때 파동이 어긋납니다.": "不稳定波：绕一圈后波形错位。",
+            "현대: 전자구름과 오비탈": "现代：电子云与轨道",
+            "마디면": "节面",
+            "측정 전에는 확률로 설명하고, 측정하면 한 위치의 점으로 나타납니다.": "测量前用概率描述；测量时出现在一个位置点。",
+            "돌턴 체험: 원소에 따라 공의 크기와 색 바꾸기": "道尔顿体验：按元素改变球的大小和颜色",
+            "돌턴 모형: 원소 버튼을 누르면 공 모양 원자의 크기와 색이 바뀝니다.": "道尔顿模型：按元素按钮可改变球形原子的大小和颜色。",
+            "톰슨 체험 선택": "选择汤姆孙体验",
+            "원자모형 보기: 건포도 푸딩 모형": "查看原子模型：葡萄干布丁模型",
+            "실험 보기: 음극선 실험": "查看实验：阴极射线实验",
+            "건포도 푸딩 조작": "葡萄干布丁控制",
+            "전자 1개 추가": "添加1个电子",
+            "전자 1개 제거": "移除1个电子",
+            "처음 상태": "重置",
+            "음극선 조작": "阴极射线控制",
+            "전기장": "电场",
+            "자기장": "磁场",
+            "가속 전압": "加速电压",
+            "빔 시작": "开始电子束",
+            "빔 한 번 쏘기": "发射一次电子束",
+            "정지": "停止",
+            "전자 빔 지우기": "清除电子束",
+            "톰슨 모형: 원자모형 보기와 음극선 실험을 버튼으로 전환할 수 있습니다.": "汤姆孙模型：可用按钮切换原子模型和阴极射线实验。",
+            "러더퍼드 체험 선택": "选择卢瑟福体验",
+            "원자모형 보기: 전자 운동과 붕괴 한계": "查看原子模型：电子运动与坍缩局限",
+            "실험 보기: 알파 입자 산란 실험": "查看实验：α粒子散射实验",
+            "전자 운동 조작": "电子运动控制",
+            "전자 붕괴 시뮬레이션 시작": "开始电子坍缩模拟",
+            "전자 궤도 다시 시작": "重新开始电子轨道",
+            "알파 입자 산란 조작": "α粒子散射控制",
+            "원자핵 양전하 세기": "原子核正电荷强度",
+            "알파 빔 퍼짐": "α束发散程度",
+            "알파 입자 1개 쏘기": "发射1个α粒子",
+            "알파 입자 50개 쏘기": "发射50个α粒子",
+            "경로 지우기": "清除路径",
+            "러더퍼드 모형: 원자모형 모드에서는 전자의 운동과 붕괴 한계를, 실험 모드에서는 알파 입자 산란을 볼 수 있습니다.": "卢瑟福模型：模型模式看电子运动和坍缩局限，实验模式看α粒子散射。",
+            "보어 체험 선택": "选择玻尔体验",
+            "원자모형 보기: 에너지 준위": "查看原子模型：能级",
+            "실험 보기: 수소 선 스펙트럼": "查看实验：氢线光谱",
+            "에너지 준위와 빛 조작": "能级与光控制",
+            "빛 흡수: 높은 궤도": "吸收光：更高轨道",
+            "빛 방출: 낮은 궤도": "放出光：更低轨道",
+            "수소 선 스펙트럼 조작": "氢线光谱控制",
+            "전체 선 보기": "显示全部谱线",
+            "보어 모형: 에너지 준위 전이와 수소 선 스펙트럼을 탐구할 수 있습니다.": "玻尔模型：探索能级跃迁和氢线光谱。",
+            "드브로이 체험: 전자 물질파와 정상파 조건": "德布罗意体验：电子物质波与驻波条件",
+            "맞지 않는 파장 보기": "显示不匹配波长",
+            "파장이 딱 맞게 보기": "显示匹配波长",
+            "파동 멈추기": "暂停波动",
+            "파동 움직이기": "播放波动",
+            "드브로이 모형: 전자를 파동으로 보고, 파동이 원 둘레에 매끄럽게 이어지는 조건을 탐구합니다.": "德布罗意模型：把电子看作波，探索波在圆周上平滑连接的条件。",
+            "현대 원자모형 체험: 오비탈과 측정": "现代原子模型体验：轨道与测量",
+            "1s 전자구름": "1s 电子云",
+            "2p 오비탈": "2p 轨道",
+            "전자구름 밝기": "电子云亮度",
+            "측정 1회": "测量1次",
+            "측정 10회": "测量10次",
+            "측정 100회": "测量100次",
+            "측정 점 지우기": "清除测量点",
+            "현대 원자모형: 밝은 곳은 전자가 발견될 가능성이 큰 곳입니다. 측정을 반복하면 점들이 전자구름 모양으로 쌓입니다.": "现代原子模型：越亮表示电子越可能被发现。重复测量后点会形成电子云。",
+            "이 브라우저에서는 음성 설명을 지원하지 않을 수 있습니다.": "此浏览器可能不支持语音说明。",
+            "아직 작성한 내용이 없습니다.": "还没有填写内容。"
+      },
+      "ja": {
+            "그림 설명 보기가 꺼져 있습니다.": "図の説明はオフです。",
+            "돌턴: 단단한 공 모형": "ドルトン：硬い球の模型",
+            "돌턴식 생각: 원소마다 원자 공의 크기와 질량이 다르다": "ドルトンの考え：元素ごとに原子の大きさと質量が違う",
+            "톰슨: 건포도 푸딩 모형": "トムソン：プラムプディング模型",
+            "양전하 덩어리": "正電荷のかたまり",
+            "전자들이 안에 박혀 있다고 생각": "電子が中に埋まっていると考えた",
+            "톰슨: 음극선 실험": "トムソン：陰極線実験",
+            "음극 −": "陰極 −",
+            "양극 +": "陽極 +",
+            "형광 스크린": "蛍光スクリーン",
+            "+ 전기장 판": "+ 電場板",
+            "− 전기장 판": "− 電場板",
+            "자기장 B": "磁場 B",
+            "아래쪽": "下向き",
+            "위쪽": "上向き",
+            "거의 직진": "ほぼ直進",
+            "앞쪽": "手前方向",
+            "뒤쪽": "奥方向",
+            "중앙": "中央",
+            "빔 진행 중": "ビーム進行中",
+            "대기 중": "待機中",
+            "러더퍼드: 원자핵과 전자 운동": "ラザフォード：原子核と電子運動",
+            "원자핵 +": "原子核 +",
+            "전자": "電子",
+            "한계: 이 생각대로라면 전자가 원자핵에 빨려 들어가 원자가 안정할 수 없습니다.": "限界：この考えでは電子が原子核に落ち込み、原子は安定できません。",
+            "전자 붕괴 시뮬레이션: 전자가 에너지를 잃고 원자핵으로 가까워집니다.": "電子崩壊シミュレーション：電子がエネルギーを失い原子核に近づきます。",
+            "전자 운동 보기: 러더퍼드 모형은 원자핵을 제시했지만 안정한 전자를 설명하기 어려웠습니다.": "電子運動：ラザフォード模型は原子核を示しましたが、安定な電子の説明は困難でした。",
+            "러더퍼드: 알파 입자 산란 실험": "ラザフォード：α粒子散乱実験",
+            "알파 입자": "α粒子",
+            "발사 장치": "発射装置",
+            "얇은 금박": "薄い金箔",
+            "+ 핵": "+ 核",
+            "검출 화면": "検出スクリーン",
+            "보어: 정해진 에너지 궤도": "ボーア：決まったエネルギー軌道",
+            "핵": "核",
+            "빛 흡수 방향": "光吸収の方向",
+            "빛 방출 방향": "光放出の方向",
+            "보어: 수소 선 스펙트럼": "ボーア：水素の線スペクトル",
+            "수소 기체 방전관": "水素気体放電管",
+            "전기를 가하면 수소가 특정한 색의 빛만 냅니다.": "電気を加えると、水素は特定の色の光だけを出します。",
+            "프리즘을 통과한 뒤 보이는 선 스펙트럼": "プリズムを通過した後に見える線スペクトル",
+            "높은 에너지 → 낮은 에너지: 빛 방출": "高エネルギー → 低エネルギー：光の放出",
+            "수소는 모든 색을 연속적으로 내는 것이 아니라 몇 개의 선으로 된 빛을 냅니다.": "水素はすべての色を連続的に出すのではなく、数本の線の光を出します。",
+            "보어 모형은 이 선 스펙트럼을 에너지 준위 전이로 설명했습니다.": "ボーア模型はこの線スペクトルをエネルギー準位の遷移で説明しました。",
+            "드브로이: 전자의 물질파": "ド・ブロイ：電子の物質波",
+            "파동이 매끄럽게 이어지지 않음": "波がなめらかにつながらない",
+            "안정한 정상파: 전자의 파동이 자기 자신과 잘 맞물립니다.": "安定な定常波：電子の波が自分自身とうまく重なります。",
+            "불안정한 파동: 한 바퀴 돌아왔을 때 파동이 어긋납니다.": "不安定な波：一周すると波がずれます。",
+            "현대: 전자구름과 오비탈": "現代：電子雲とオービタル",
+            "마디면": "節面",
+            "측정 전에는 확률로 설명하고, 측정하면 한 위치의 점으로 나타납니다.": "測定前は確率で説明し、測定すると一つの位置の点として現れます。",
+            "돌턴 체험: 원소에 따라 공의 크기와 색 바꾸기": "ドルトン体験：元素ごとに球の大きさと色を変える",
+            "돌턴 모형: 원소 버튼을 누르면 공 모양 원자의 크기와 색이 바뀝니다.": "ドルトン模型：元素ボタンを押すと球形原子の大きさと色が変わります。",
+            "톰슨 체험 선택": "トムソン体験の選択",
+            "원자모형 보기: 건포도 푸딩 모형": "原子模型を見る：プラムプディング模型",
+            "실험 보기: 음극선 실험": "実験を見る：陰極線実験",
+            "건포도 푸딩 조작": "プラムプディング操作",
+            "전자 1개 추가": "電子を1個追加",
+            "전자 1개 제거": "電子を1個削除",
+            "처음 상태": "リセット",
+            "음극선 조작": "陰極線操作",
+            "전기장": "電場",
+            "자기장": "磁場",
+            "가속 전압": "加速電圧",
+            "빔 시작": "ビーム開始",
+            "빔 한 번 쏘기": "ビームを一回発射",
+            "정지": "停止",
+            "전자 빔 지우기": "電子ビームを消す",
+            "톰슨 모형: 원자모형 보기와 음극선 실험을 버튼으로 전환할 수 있습니다.": "トムソン模型：原子模型と陰極線実験をボタンで切り替えられます。",
+            "러더퍼드 체험 선택": "ラザフォード体験の選択",
+            "원자모형 보기: 전자 운동과 붕괴 한계": "原子模型を見る：電子運動と崩壊の限界",
+            "실험 보기: 알파 입자 산란 실험": "実験を見る：α粒子散乱実験",
+            "전자 운동 조작": "電子運動操作",
+            "전자 붕괴 시뮬레이션 시작": "電子崩壊シミュレーション開始",
+            "전자 궤도 다시 시작": "電子軌道を再開",
+            "알파 입자 산란 조작": "α粒子散乱操作",
+            "원자핵 양전하 세기": "原子核の正電荷の強さ",
+            "알파 빔 퍼짐": "αビームの広がり",
+            "알파 입자 1개 쏘기": "α粒子を1個発射",
+            "알파 입자 50개 쏘기": "α粒子を50個発射",
+            "경로 지우기": "経路を消す",
+            "러더퍼드 모형: 원자모형 모드에서는 전자의 운동과 붕괴 한계를, 실험 모드에서는 알파 입자 산란을 볼 수 있습니다.": "ラザフォード模型：模型モードでは電子運動と崩壊限界を、実験モードではα粒子散乱を見られます。",
+            "보어 체험 선택": "ボーア体験の選択",
+            "원자모형 보기: 에너지 준위": "原子模型を見る：エネルギー準位",
+            "실험 보기: 수소 선 스펙트럼": "実験を見る：水素線スペクトル",
+            "에너지 준위와 빛 조작": "エネルギー準位と光の操作",
+            "빛 흡수: 높은 궤도": "光吸収：高い軌道へ",
+            "빛 방출: 낮은 궤도": "光放出：低い軌道へ",
+            "수소 선 스펙트럼 조작": "水素線スペクトル操作",
+            "전체 선 보기": "すべての線を見る",
+            "보어 모형: 에너지 준위 전이와 수소 선 스펙트럼을 탐구할 수 있습니다.": "ボーア模型：エネルギー準位遷移と水素線スペクトルを探究できます。",
+            "드브로이 체험: 전자 물질파와 정상파 조건": "ド・ブロイ体験：電子物質波と定常波条件",
+            "맞지 않는 파장 보기": "合わない波長を見る",
+            "파장이 딱 맞게 보기": "合う波長を見る",
+            "파동 멈추기": "波を止める",
+            "파동 움직이기": "波を動かす",
+            "드브로이 모형: 전자를 파동으로 보고, 파동이 원 둘레에 매끄럽게 이어지는 조건을 탐구합니다.": "ド・ブロイ模型：電子を波として見て、波が円周で滑らかにつながる条件を探究します。",
+            "현대 원자모형 체험: 오비탈과 측정": "現代原子模型体験：オービタルと測定",
+            "1s 전자구름": "1s電子雲",
+            "2p 오비탈": "2pオービタル",
+            "전자구름 밝기": "電子雲の明るさ",
+            "측정 1회": "1回測定",
+            "측정 10회": "10回測定",
+            "측정 100회": "100回測定",
+            "측정 점 지우기": "測定点を消す",
+            "현대 원자모형: 밝은 곳은 전자가 발견될 가능성이 큰 곳입니다. 측정을 반복하면 점들이 전자구름 모양으로 쌓입니다.": "現代原子模型：明るい所ほど電子が見つかる可能性が高いです。測定を繰り返すと点が電子雲のように集まります。",
+            "이 브라우저에서는 음성 설명을 지원하지 않을 수 있습니다.": "このブラウザでは音声説明をサポートしていない場合があります。",
+            "아직 작성한 내용이 없습니다.": "まだ内容が書かれていません。"
+      },
+      "vi": {
+            "그림 설명 보기가 꺼져 있습니다.": "Mô tả hình đang tắt.",
+            "돌턴: 단단한 공 모형": "Dalton: mô hình quả cầu rắn",
+            "돌턴식 생각: 원소마다 원자 공의 크기와 질량이 다르다": "Ý tưởng Dalton: nguyên tử của mỗi nguyên tố có kích thước và khối lượng khác nhau",
+            "톰슨: 건포도 푸딩 모형": "Thomson: mô hình bánh pudding nho khô",
+            "양전하 덩어리": "khối điện tích dương",
+            "전자들이 안에 박혀 있다고 생각": "Cho rằng electron nằm bên trong",
+            "톰슨: 음극선 실험": "Thomson: thí nghiệm tia âm cực",
+            "음극 −": "cực âm −",
+            "양극 +": "cực dương +",
+            "형광 스크린": "màn huỳnh quang",
+            "+ 전기장 판": "+ bản điện trường",
+            "− 전기장 판": "− bản điện trường",
+            "자기장 B": "từ trường B",
+            "아래쪽": "hướng xuống",
+            "위쪽": "hướng lên",
+            "거의 직진": "gần như đi thẳng",
+            "앞쪽": "phía trước",
+            "뒤쪽": "phía sau",
+            "중앙": "giữa",
+            "빔 진행 중": "chùm tia đang chạy",
+            "대기 중": "sẵn sàng",
+            "러더퍼드: 원자핵과 전자 운동": "Rutherford: hạt nhân và chuyển động electron",
+            "원자핵 +": "hạt nhân +",
+            "전자": "electron",
+            "한계: 이 생각대로라면 전자가 원자핵에 빨려 들어가 원자가 안정할 수 없습니다.": "Giới hạn: theo mô hình này, electron sẽ rơi vào hạt nhân nên nguyên tử không ổn định.",
+            "전자 붕괴 시뮬레이션: 전자가 에너지를 잃고 원자핵으로 가까워집니다.": "Mô phỏng sụp đổ: electron mất năng lượng và tiến gần hạt nhân.",
+            "전자 운동 보기: 러더퍼드 모형은 원자핵을 제시했지만 안정한 전자를 설명하기 어려웠습니다.": "Chuyển động electron: mô hình Rutherford nêu hạt nhân nhưng khó giải thích electron ổn định.",
+            "러더퍼드: 알파 입자 산란 실험": "Rutherford: thí nghiệm tán xạ hạt alpha",
+            "알파 입자": "hạt alpha",
+            "발사 장치": "thiết bị phóng",
+            "얇은 금박": "lá vàng mỏng",
+            "+ 핵": "+ hạt nhân",
+            "검출 화면": "màn phát hiện",
+            "보어: 정해진 에너지 궤도": "Bohr: quỹ đạo năng lượng xác định",
+            "핵": "hạt nhân",
+            "빛 흡수 방향": "hướng hấp thụ ánh sáng",
+            "빛 방출 방향": "hướng phát xạ ánh sáng",
+            "보어: 수소 선 스펙트럼": "Bohr: quang phổ vạch hydro",
+            "수소 기체 방전관": "ống phóng điện khí hydro",
+            "전기를 가하면 수소가 특정한 색의 빛만 냅니다.": "Khi có điện, hydro chỉ phát ra một số màu ánh sáng nhất định.",
+            "프리즘을 통과한 뒤 보이는 선 스펙트럼": "Quang phổ vạch sau khi đi qua lăng kính",
+            "높은 에너지 → 낮은 에너지: 빛 방출": "năng lượng cao → thấp: phát sáng",
+            "수소는 모든 색을 연속적으로 내는 것이 아니라 몇 개의 선으로 된 빛을 냅니다.": "Hydro không phát ra mọi màu liên tục mà phát ra vài vạch sáng.",
+            "보어 모형은 이 선 스펙트럼을 에너지 준위 전이로 설명했습니다.": "Mô hình Bohr giải thích các vạch này bằng chuyển mức năng lượng.",
+            "드브로이: 전자의 물질파": "de Broglie: sóng vật chất của electron",
+            "파동이 매끄럽게 이어지지 않음": "Sóng không nối trơn tru",
+            "안정한 정상파: 전자의 파동이 자기 자신과 잘 맞물립니다.": "Sóng dừng ổn định: sóng electron khớp với chính nó.",
+            "불안정한 파동: 한 바퀴 돌아왔을 때 파동이 어긋납니다.": "Sóng không ổn định: sau một vòng, sóng bị lệch pha.",
+            "현대: 전자구름과 오비탈": "Hiện đại: đám mây electron và orbital",
+            "마디면": "mặt nút",
+            "측정 전에는 확률로 설명하고, 측정하면 한 위치의 점으로 나타납니다.": "Trước khi đo dùng xác suất; khi đo electron xuất hiện như một điểm.",
+            "돌턴 체험: 원소에 따라 공의 크기와 색 바꾸기": "Hoạt động Dalton: đổi kích thước và màu quả cầu theo nguyên tố",
+            "돌턴 모형: 원소 버튼을 누르면 공 모양 원자의 크기와 색이 바뀝니다.": "Mô hình Dalton: bấm nút nguyên tố để đổi kích thước và màu của nguyên tử dạng cầu.",
+            "톰슨 체험 선택": "Chọn hoạt động Thomson",
+            "원자모형 보기: 건포도 푸딩 모형": "Xem mô hình: bánh pudding nho khô",
+            "실험 보기: 음극선 실험": "Xem thí nghiệm: tia âm cực",
+            "건포도 푸딩 조작": "Điều khiển mô hình pudding",
+            "전자 1개 추가": "Thêm 1 electron",
+            "전자 1개 제거": "Bỏ 1 electron",
+            "처음 상태": "Đặt lại",
+            "음극선 조작": "Điều khiển tia âm cực",
+            "전기장": "Điện trường",
+            "자기장": "Từ trường",
+            "가속 전압": "Điện áp tăng tốc",
+            "빔 시작": "Bắt đầu chùm tia",
+            "빔 한 번 쏘기": "Bắn một chùm tia",
+            "정지": "Dừng",
+            "전자 빔 지우기": "Xóa chùm electron",
+            "톰슨 모형: 원자모형 보기와 음극선 실험을 버튼으로 전환할 수 있습니다.": "Mô hình Thomson: có thể chuyển giữa mô hình nguyên tử và thí nghiệm tia âm cực.",
+            "러더퍼드 체험 선택": "Chọn hoạt động Rutherford",
+            "원자모형 보기: 전자 운동과 붕괴 한계": "Xem mô hình: chuyển động electron và giới hạn sụp đổ",
+            "실험 보기: 알파 입자 산란 실험": "Xem thí nghiệm: tán xạ hạt alpha",
+            "전자 운동 조작": "Điều khiển chuyển động electron",
+            "전자 붕괴 시뮬레이션 시작": "Bắt đầu mô phỏng electron sụp đổ",
+            "전자 궤도 다시 시작": "Khởi động lại quỹ đạo electron",
+            "알파 입자 산란 조작": "Điều khiển tán xạ alpha",
+            "원자핵 양전하 세기": "Độ mạnh điện tích dương của hạt nhân",
+            "알파 빔 퍼짐": "Độ lan của chùm alpha",
+            "알파 입자 1개 쏘기": "Bắn 1 hạt alpha",
+            "알파 입자 50개 쏘기": "Bắn 50 hạt alpha",
+            "경로 지우기": "Xóa đường đi",
+            "러더퍼드 모형: 원자모형 모드에서는 전자의 운동과 붕괴 한계를, 실험 모드에서는 알파 입자 산란을 볼 수 있습니다.": "Mô hình Rutherford: xem chuyển động electron và giới hạn sụp đổ, hoặc xem tán xạ alpha.",
+            "보어 체험 선택": "Chọn hoạt động Bohr",
+            "원자모형 보기: 에너지 준위": "Xem mô hình: mức năng lượng",
+            "실험 보기: 수소 선 스펙트럼": "Xem thí nghiệm: quang phổ vạch hydro",
+            "에너지 준위와 빛 조작": "Điều khiển mức năng lượng và ánh sáng",
+            "빛 흡수: 높은 궤도": "Hấp thụ ánh sáng: quỹ đạo cao hơn",
+            "빛 방출: 낮은 궤도": "Phát sáng: quỹ đạo thấp hơn",
+            "수소 선 스펙트럼 조작": "Điều khiển quang phổ vạch hydro",
+            "전체 선 보기": "Hiện tất cả vạch",
+            "보어 모형: 에너지 준위 전이와 수소 선 스펙트럼을 탐구할 수 있습니다.": "Mô hình Bohr: khám phá chuyển mức năng lượng và quang phổ hydro.",
+            "드브로이 체험: 전자 물질파와 정상파 조건": "Hoạt động de Broglie: sóng vật chất và điều kiện sóng dừng",
+            "맞지 않는 파장 보기": "Hiện bước sóng không khớp",
+            "파장이 딱 맞게 보기": "Hiện bước sóng khớp",
+            "파동 멈추기": "Tạm dừng sóng",
+            "파동 움직이기": "Cho sóng chuyển động",
+            "드브로이 모형: 전자를 파동으로 보고, 파동이 원 둘레에 매끄럽게 이어지는 조건을 탐구합니다.": "Mô hình de Broglie: xem electron như sóng và khám phá điều kiện sóng nối trơn quanh vòng tròn.",
+            "현대 원자모형 체험: 오비탈과 측정": "Hoạt động mô hình hiện đại: orbital và phép đo",
+            "1s 전자구름": "đám mây electron 1s",
+            "2p 오비탈": "orbital 2p",
+            "전자구름 밝기": "Độ sáng đám mây electron",
+            "측정 1회": "Đo 1 lần",
+            "측정 10회": "Đo 10 lần",
+            "측정 100회": "Đo 100 lần",
+            "측정 점 지우기": "Xóa điểm đo",
+            "현대 원자모형: 밝은 곳은 전자가 발견될 가능성이 큰 곳입니다. 측정을 반복하면 점들이 전자구름 모양으로 쌓입니다.": "Mô hình hiện đại: vùng sáng hơn nghĩa là khả năng tìm electron cao hơn. Đo lặp lại tạo thành đám mây điểm.",
+            "이 브라우저에서는 음성 설명을 지원하지 않을 수 있습니다.": "Trình duyệt này có thể không hỗ trợ thuyết minh bằng giọng nói.",
+            "아직 작성한 내용이 없습니다.": "Chưa có nội dung nào."
+      }
+};
+    const messageTemplates = {
+      "ko": {
+            "elementInfo": "{name}: 크기 {radius}, 질량 느낌 {mass}",
+            "cathodeObservation": "관찰: {status}. 전기장은 상하 휘어짐, 자기장은 앞뒤 느낌의 경로 변화를 만듭니다.",
+            "currentPath": "현재 경로: {dirY}, {dirZ} 방향",
+            "alphaCounts": "거의 직진 {straight}  ·  휘어짐 {deflected}  ·  되돌아감 {bounced}",
+            "bohrEnergy": "현재 전자는 n={n} 에너지 준위에 있습니다. 궤도 사이를 이동할 때 빛을 흡수하거나 방출합니다.",
+            "deBroglieFit": "{n}개의 파장이 원 둘레에 딱 맞음",
+            "modernCount": "전자구름 밝기 {brightness}% · 측정 횟수 {count}회"
+      },
+      "en": {
+            "elementInfo": "{name}: size {radius}, mass feel {mass}",
+            "cathodeObservation": "Observation: {status}. The electric field bends the beam up/down, and the magnetic field changes the front/back path.",
+            "currentPath": "Current path: {dirY}, {dirZ}",
+            "alphaCounts": "Almost straight {straight}  ·  Deflected {deflected}  ·  Bounced back {bounced}",
+            "bohrEnergy": "The electron is currently at energy level n={n}. It absorbs or emits light when it moves between orbits.",
+            "deBroglieFit": "{n} wavelengths fit exactly around the orbit",
+            "modernCount": "Electron cloud brightness {brightness}% · measurements {count}"
+      },
+      "zh": {
+            "elementInfo": "{name}：大小 {radius}，质量感觉 {mass}",
+            "cathodeObservation": "观察：{status}。电场使电子束上下偏转，磁场产生前后方向的路径变化。",
+            "currentPath": "当前路径：{dirY}，{dirZ}方向",
+            "alphaCounts": "几乎直进 {straight}  ·  偏转 {deflected}  ·  反弹 {bounced}",
+            "bohrEnergy": "当前电子位于 n={n} 能级。它在轨道之间移动时会吸收或放出光。",
+            "deBroglieFit": "{n} 个波长正好绕满轨道",
+            "modernCount": "电子云亮度 {brightness}% · 测量次数 {count}"
+      },
+      "ja": {
+            "elementInfo": "{name}：大きさ {radius}、質量の感じ {mass}",
+            "cathodeObservation": "観察：{status}。電場は上下方向の曲がりを、磁場は前後方向の経路変化を作ります。",
+            "currentPath": "現在の経路：{dirY}、{dirZ}方向",
+            "alphaCounts": "ほぼ直進 {straight}  ·  曲がり {deflected}  ·  跳ね返り {bounced}",
+            "bohrEnergy": "現在、電子は n={n} のエネルギー準位にあります。軌道の間を移動するとき光を吸収または放出します。",
+            "deBroglieFit": "{n}個の波長が円周にぴったり合う",
+            "modernCount": "電子雲の明るさ {brightness}% · 測定回数 {count}回"
+      },
+      "vi": {
+            "elementInfo": "{name}: kích thước {radius}, cảm giác khối lượng {mass}",
+            "cathodeObservation": "Quan sát: {status}. Điện trường làm chùm tia lệch lên/xuống, từ trường tạo thay đổi đường đi trước/sau.",
+            "currentPath": "Đường đi hiện tại: {dirY}, hướng {dirZ}",
+            "alphaCounts": "Gần như đi thẳng {straight}  ·  Bị lệch {deflected}  ·  Bật ngược {bounced}",
+            "bohrEnergy": "Electron hiện ở mức năng lượng n={n}. Khi chuyển giữa các quỹ đạo, nó hấp thụ hoặc phát ra ánh sáng.",
+            "deBroglieFit": "{n} bước sóng khớp đúng quanh quỹ đạo",
+            "modernCount": "Độ sáng đám mây electron {brightness}% · số lần đo {count}"
+      }
+};
+
+    function getModelData(model = state.model) {
+      return (modelDataByLang[state.lang] && modelDataByLang[state.lang][model]) || data[model];
+    }
+
+    function getElementData() {
+      return elementDataByLang[state.lang] || elementData;
+    }
+
+    function tr(value) {
+      if (typeof value !== 'string' || state.lang === 'ko') return value;
+      return (translationText[state.lang] && translationText[state.lang][value]) || value;
+    }
+
+    function formatMsg(key, vars = {}) {
+      const langPack = messageTemplates[state.lang] || messageTemplates.ko;
+      let template = langPack[key] || messageTemplates.ko[key] || '';
+      return template.replace(/\{(\w+)\}/g, (_, name) => tr(String(vars[name] ?? '')));
+    }
+
+    function setSwitchText(inputId, labelText) {
+      const input = document.getElementById(inputId);
+      if (!input || !input.parentElement) return;
+      const label = input.parentElement;
+      label.textContent = ' ' + labelText;
+      label.prepend(input);
+    }
+
+    function showLanguageToast(message) {
+      const toast = document.getElementById('langToast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(showLanguageToast.timer);
+      showLanguageToast.timer = setTimeout(() => toast.classList.remove('show'), 1600);
+    }
+
+    function applyLanguage() {
+      const tx = uiText[state.lang] || uiText.ko;
+      document.documentElement.lang = tx.htmlLang;
+      document.title = tx.docTitle;
+      document.querySelector('.skip-link').textContent = tx.skip;
+      document.getElementById('mainTitle').textContent = tx.mainTitle;
+      const heroPs = document.querySelectorAll('.hero-card p');
+      if (heroPs[0]) heroPs[0].innerHTML = tx.hero1;
+      if (heroPs[1]) heroPs[1].innerHTML = tx.hero2;
+      const pillRow = document.querySelector('.pill-row');
+      if (pillRow) {
+        pillRow.setAttribute('aria-label', tx.pills.join(', '));
+        pillRow.innerHTML = tx.pills.map(p => `<span class="pill">${p}</span>`).join('');
+      }
+      document.getElementById('natureTitle').textContent = tx.natureTitle;
+      const notePs = document.querySelectorAll('.note-card p');
+      if (notePs[0]) notePs[0].textContent = tx.nature1;
+      if (notePs[1]) notePs[1].innerHTML = tx.nature2;
+      document.getElementById('toolbarTitle').textContent = tx.toolbarTitle;
+      document.querySelectorAll('.model-btn').forEach((btn, idx) => { btn.textContent = tx.modelButtons[idx]; });
+      document.getElementById('easyBtn').textContent = tx.easy;
+      document.getElementById('deepBtn').textContent = tx.deep;
+      document.getElementById('fontDownBtn').textContent = tx.fontDown;
+      document.getElementById('fontDownBtn').setAttribute('aria-label', tx.fontDown);
+      document.getElementById('fontUpBtn').textContent = tx.fontUp;
+      document.getElementById('fontUpBtn').setAttribute('aria-label', tx.fontUp);
+      setSwitchText('contrastToggle', tx.contrast);
+      setSwitchText('colorblindToggle', tx.colorblind);
+      setSwitchText('descToggle', tx.descToggle);
+      document.getElementById('speakBtn').textContent = tx.speak;
+      const stopBtn = document.getElementById('stopSpeakBtn');
+      if (stopBtn) {
+        stopBtn.textContent = tx.stopSpeak;
+        stopBtn.setAttribute('aria-label', tx.stopSpeak);
+        stopBtn.title = tx.stopSpeak;
+      }
+      document.getElementById('timelineTitle').textContent = tx.timelineTitle;
+      document.getElementById('simulation').setAttribute('aria-label', tx.mainTitle);
+      document.getElementById('simCanvas').setAttribute('aria-label', tx.caption);
+      canvasCaption.textContent = tx.caption;
+      document.querySelectorAll('.info-card h3').forEach((h, idx) => { if (tx.heads[idx]) h.textContent = tx.heads[idx]; });
+      document.getElementById('activityTitle').textContent = tx.activityTitle;
+      document.querySelector('label[for="responseBox"]').innerHTML = tx.responseLabel;
+      document.getElementById('responseBox').placeholder = tx.responsePlaceholder;
+      document.getElementById('saveTextBtn').textContent = tx.saveText;
+      document.getElementById('clearTextBtn').textContent = tx.clearText;
+      document.querySelector('.draw-box > strong').textContent = tx.drawTitle;
+      document.getElementById('clearDrawBtn').textContent = tx.clearDraw;
+      document.getElementById('saveDrawBtn').textContent = tx.saveDraw;
+      document.getElementById('helpTitle').textContent = tx.helpTitle;
+      document.querySelector('.footer-help p').innerHTML = tx.helpHTML;
+      document.getElementById('languagePanel').setAttribute('aria-label', tx.langLabel);
+      document.getElementById('langKoBtn').classList.toggle('active', state.lang === 'ko');
+      document.getElementById('langEnBtn').classList.toggle('active', state.lang === 'en');
+      document.getElementById('langZhBtn').classList.toggle('active', state.lang === 'zh');
+      document.getElementById('langJaBtn').classList.toggle('active', state.lang === 'ja');
+      document.getElementById('langViBtn').classList.toggle('active', state.lang === 'vi');
+      document.getElementById('langToast').textContent = tx.moreMsg;
+    }
+
+    function setLanguage(lang) {
+      if (lang === 'more') {
+        showLanguageToast((uiText[state.lang] || uiText.ko).moreMsg);
+        return;
+      }
+      state.lang = lang;
+      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+      applyLanguage();
+      updateInfo();
+    }
+
+    function getPal() { return state.colorblind ? paletteColorblind : paletteDefault; }
+
+    function setupThomsonElectrons() {
+      state.thomsonElectrons = [];
+      const positions = [
+        [-90,-58],[-28,-75],[55,-52],[105,-6],[-112,16],[-48,38],[28,8],[75,65],[-10,88]
+      ];
+      for (const [x,y] of positions) state.thomsonElectrons.push({ x, y });
+    }
+    setupThomsonElectrons();
+
+    function clearCanvas() {
+      ctx.clearRect(0, 0, W, H);
+      const grd = ctx.createLinearGradient(0, 0, W, H);
+      grd.addColorStop(0, '#0b1730');
+      grd.addColorStop(1, '#060b18');
+      ctx.fillStyle = document.body.classList.contains('high-contrast') ? '#000' : grd;
+      ctx.fillRect(0, 0, W, H);
+      drawGrid();
+    }
+
+    function drawGrid() {
+      ctx.save();
+      ctx.strokeStyle = document.body.classList.contains('high-contrast') ? 'rgba(255,255,255,.14)' : 'rgba(148,163,184,.08)';
+      ctx.lineWidth = 1;
+      for (let x = 0; x <= W; x += 48) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+      }
+      for (let y = 0; y <= H; y += 48) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    function circle(x, y, r, fill, stroke = null, width = 2) {
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fillStyle = fill;
+      ctx.fill();
+      if (stroke) {
+        ctx.strokeStyle = stroke;
+        ctx.lineWidth = width;
+        ctx.stroke();
+      }
+    }
+
+    function text(str, x, y, size = 18, color = '#fff', align = 'center', weight = '700') {
+      str = tr(str);
+      ctx.save();
+      ctx.font = `${weight} ${size}px "Noto Sans KR", system-ui, sans-serif`;
+      ctx.fillStyle = color;
+      ctx.textAlign = align;
+      ctx.textBaseline = 'middle';
+      ctx.fillText(str, x, y);
+      ctx.restore();
+    }
+
+    function roundRect(x, y, w, h, r, fill, stroke = null) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + w, y, x + w, y + h, r);
+      ctx.arcTo(x + w, y + h, x, y + h, r);
+      ctx.arcTo(x, y + h, x, y, r);
+      ctx.arcTo(x, y, x + w, y, r);
+      ctx.closePath();
+      ctx.fillStyle = fill;
+      ctx.fill();
+      if (stroke) {
+        ctx.strokeStyle = stroke;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    function drawAtomLabel(label) {
+      const out = tr(label);
+      const boxWidth = Math.min(560, Math.max(300, out.length * 12 + 48));
+      roundRect(24, 22, boxWidth, 54, 14, 'rgba(15,23,42,.78)', 'rgba(148,163,184,.3)');
+      text(out, 42, 50, out.length > 20 ? 18 : 22, '#f8fafc', 'left', '800');
+    }
+
+    function drawDalton() {
+      const e = getElementData()[state.daltonElement];
+      drawAtomLabel('돌턴: 단단한 공 모형');
+      const atomY = CY - 55;
+      const color = state.colorblind && state.daltonElement === 'oxygen' ? '#cc79a7' : e.color;
+      const grad = ctx.createRadialGradient(CX - e.radius * .35, atomY - e.radius * .35, 8, CX, atomY, e.radius * 1.25);
+      grad.addColorStop(0, '#ffffff');
+      grad.addColorStop(.12, color);
+      grad.addColorStop(1, '#1f2937');
+      circle(CX, atomY, e.radius, grad, 'rgba(255,255,255,.75)', 3);
+      circle(CX - e.radius * .32, atomY - e.radius * .38, e.radius * .12, 'rgba(255,255,255,.55)');
+      text(e.name, CX, atomY + e.radius + 36, 28, '#f8fafc');
+      text(`돌턴식 생각: 원소마다 원자 공의 크기와 질량이 다르다`, CX, atomY + e.radius + 68, 18, '#cbd5e1', 'center', '600');
+      roundRect(80, 456, 800, 70, 18, 'rgba(15,23,42,.65)', 'rgba(148,163,184,.25)');
+      text(formatMsg('elementInfo', { name: e.name, radius: e.radius, mass: e.mass }), 110, 483, 19, '#facc15', 'left');
+      text(e.note, 110, 511, 17, '#e2e8f0', 'left', '500');
+    }
+
+    function drawThomsonModel() {
+      const pal = getPal();
+      drawAtomLabel('톰슨: 건포도 푸딩 모형');
+      const r = 155;
+      const grad = ctx.createRadialGradient(CX - 55, CY - 65, 20, CX, CY, r);
+      grad.addColorStop(0, 'rgba(255,255,255,.9)');
+      grad.addColorStop(.18, 'rgba(255,214,165,.95)');
+      grad.addColorStop(1, 'rgba(234,88,12,.62)');
+      circle(CX, CY, r, grad, 'rgba(255,255,255,.75)', 4);
+
+      ctx.save();
+      ctx.globalAlpha = .42;
+      ctx.fillStyle = pal.proton;
+      for (let i = 0; i < 36; i++) {
+        const a = i * Math.PI * 2 / 36 + .2 * Math.sin(state.time + i);
+        const rr = 25 + (i % 6) * 22;
+        const x = CX + Math.cos(a) * rr;
+        const y = CY + Math.sin(a) * rr;
+        text('+', x, y, 20, pal.proton, 'center', '800');
+      }
+      ctx.restore();
+
+      for (const el of state.thomsonElectrons) {
+        const x = CX + el.x;
+        const y = CY + el.y;
+        circle(x, y, 15, pal.electron, '#fff', 2);
+        text('−', x, y + 1, 20, '#07111f', 'center', '900');
+      }
+
+      text('양전하 덩어리', CX, CY + r + 35, 20, pal.proton);
+      text('전자들이 안에 박혀 있다고 생각', CX, CY + r + 66, 18, '#e2e8f0', 'center', '600');
+    }
+
+    function spawnCathodeParticles(count = 7) {
+      for (let i = 0; i < count; i++) {
+        state.thomsonParticles.push({
+          t: -Math.random() * .6,
+          lane: (Math.random() - .5) * 22,
+          speed: .004 + state.voltage / 42000 + Math.random() * .002
+        });
+      }
+    }
+
+    function drawCathodeExperiment() {
+      const pal = getPal();
+      drawAtomLabel('톰슨: 음극선 실험');
+      const tubeX = 85, tubeY = 120, tubeW = 790, tubeH = 318;
+      const startX = tubeX + 64;
+      const endX = tubeX + tubeW - 65;
+      const baseY = CY;
+      const eDeflect = state.eField / 100;
+      const bDeflect = state.bField / 100;
+      const voltageFactor = 0.75 + state.voltage / 100;
+
+      // 진공관 외곽: 약간 기울어진 3차원 상자 느낌
+      roundRect(tubeX, tubeY, tubeW, tubeH, 42, 'rgba(15,23,42,.62)', 'rgba(226,232,240,.68)');
+      ctx.save();
+      ctx.strokeStyle = 'rgba(148,163,184,.26)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(tubeX + 55, tubeY + 35); ctx.lineTo(tubeX + 115, tubeY - 8); ctx.lineTo(tubeX + tubeW - 72, tubeY - 8); ctx.lineTo(tubeX + tubeW - 23, tubeY + 35);
+      ctx.moveTo(tubeX + 55, tubeY + tubeH - 35); ctx.lineTo(tubeX + 115, tubeY + tubeH + 8); ctx.lineTo(tubeX + tubeW - 72, tubeY + tubeH + 8); ctx.lineTo(tubeX + tubeW - 23, tubeY + tubeH - 35);
+      ctx.stroke();
+      ctx.restore();
+
+      roundRect(tubeX + 35, tubeY + 101, 28, 116, 6, 'rgba(148,163,184,.45)', '#e2e8f0');
+      text('음극 −', tubeX + 49, tubeY + 244, 16, '#e2e8f0');
+      roundRect(tubeX + 190, tubeY + 97, 20, 124, 6, 'rgba(148,163,184,.35)', '#e2e8f0');
+      circle(tubeX + 200, CY, 16, '#081121', '#e2e8f0', 2);
+      text('양극 +', tubeX + 200, tubeY + 244, 16, '#e2e8f0');
+      roundRect(tubeX + tubeW - 65, tubeY + 50, 20, tubeH - 100, 6, 'rgba(56,189,248,.18)', pal.cloud);
+      text('형광 스크린', tubeX + tubeW - 55, tubeY + tubeH + 26, 16, pal.cloud);
+
+      // 상하: 전기장 판
+      const plateLeft = CX - 165, plateRight = CX + 155;
+      const plateTop = tubeY + 78, plateBottom = tubeY + tubeH - 78;
+      function para(x1, y1, x2, y2, shift, fill, stroke) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.lineTo(x2 + shift, y2 - 14); ctx.lineTo(x1 + shift, y1 - 14);
+        ctx.closePath();
+        ctx.fillStyle = fill; ctx.fill();
+        ctx.strokeStyle = stroke; ctx.lineWidth = 2; ctx.stroke();
+        ctx.restore();
+      }
+      para(plateLeft, plateTop, plateRight, plateTop, 36, 'rgba(248,250,252,.55)', 'rgba(226,232,240,.75)');
+      para(plateLeft, plateBottom, plateRight, plateBottom, 36, 'rgba(248,250,252,.45)', 'rgba(226,232,240,.7)');
+      text(state.eField >= 0 ? '+ 전기장 판' : '− 전기장 판', CX, plateTop - 28, 16, state.eField >= 0 ? pal.proton : pal.electron2);
+      text(state.eField >= 0 ? '− 전기장 판' : '+ 전기장 판', CX, plateBottom + 30, 16, state.eField >= 0 ? pal.electron2 : pal.proton);
+
+      // 좌우/앞뒤: 자기장 영역을 3차원처럼 표시
+      ctx.save();
+      ctx.globalAlpha = .88;
+      ctx.fillStyle = 'rgba(167,139,250,.16)';
+      ctx.strokeStyle = 'rgba(167,139,250,.72)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(CX - 238, tubeY + 100); ctx.lineTo(CX - 178, tubeY + 62); ctx.lineTo(CX - 178, tubeY + tubeH - 105); ctx.lineTo(CX - 238, tubeY + tubeH - 65); ctx.closePath();
+      ctx.fill(); ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(CX + 208, tubeY + 66); ctx.lineTo(CX + 268, tubeY + 102); ctx.lineTo(CX + 268, tubeY + tubeH - 64); ctx.lineTo(CX + 208, tubeY + tubeH - 104); ctx.closePath();
+      ctx.fill(); ctx.stroke();
+      ctx.restore();
+      text('자기장 B', CX - 210, tubeY + 86, 15, pal.accent3 || '#a78bfa');
+      text('자기장 B', CX + 240, tubeY + 86, 15, pal.accent3 || '#a78bfa');
+      ctx.save();
+      ctx.fillStyle = '#c4b5fd';
+      for (let i = 0; i < 5; i++) {
+        const y = tubeY + 135 + i * 35;
+        text(state.bField >= 0 ? '⊙' : '⊗', CX - 208, y, 18, '#c4b5fd');
+        text(state.bField >= 0 ? '⊗' : '⊙', CX + 240, y, 18, '#c4b5fd');
+      }
+      ctx.restore();
+
+      const deflectY = (state.eField * .9 - state.bField * .35) / 100;
+      const deflectZ = state.bField / 100;
+
+      // 예상 경로는 빔이 켜져 있을 때만 선명하게, 꺼져 있을 때는 점선 안내로 표시
+      ctx.save();
+      ctx.strokeStyle = state.thomsonBeamRunning || state.thomsonParticles.length ? 'rgba(56,189,248,.42)' : 'rgba(148,163,184,.22)';
+      ctx.lineWidth = state.thomsonBeamRunning || state.thomsonParticles.length ? 4 : 2;
+      if (!state.thomsonBeamRunning && state.thomsonParticles.length === 0) ctx.setLineDash([8, 10]);
+      ctx.beginPath();
+      for (let i = 0; i <= 80; i++) {
+        const u = i / 80;
+        const z = deflectZ * 80 * Math.pow(u, 1.45) / voltageFactor;
+        const x = startX + (endX - startX) * u + z * .22;
+        const y = baseY + deflectY * 135 * Math.pow(u, 1.65) / voltageFactor - z * .22;
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+      ctx.restore();
+
+      if (state.thomsonBeamRunning && !state.thomsonSingleShot && state.thomsonParticles.length < 14) spawnCathodeParticles(1);
+      for (let i = state.thomsonParticles.length - 1; i >= 0; i--) {
+        const p = state.thomsonParticles[i];
+        if (state.thomsonBeamRunning) p.t += p.speed;
+        if (p.t > 1.05) {
+          if (state.thomsonSingleShot) { state.thomsonParticles.splice(i, 1); continue; }
+          p.t = -Math.random() * .45;
+          p.lane = (Math.random() - .5) * 24;
+        }
+        const u = Math.max(0, p.t);
+        const z = deflectZ * 80 * Math.pow(u, 1.45) / voltageFactor;
+        const x = startX + (endX - startX) * u + z * .22;
+        const y = baseY + p.lane + deflectY * 135 * Math.pow(u, 1.65) / voltageFactor - z * .22;
+        if (u > 0) circle(x, y, 6 + Math.max(-2, z * .015), pal.electron2, '#fff', 1);
+      }
+      if (state.thomsonSingleShot && state.thomsonParticles.length === 0) {
+        state.thomsonBeamRunning = false;
+        state.thomsonSingleShot = false;
+      }
+
+      roundRect(105, 455, 750, 60, 16, 'rgba(15,23,42,.72)', 'rgba(148,163,184,.25)');
+      const dirY = deflectY > .15 ? '아래쪽' : deflectY < -.15 ? '위쪽' : '거의 직진';
+      const dirZ = deflectZ > .15 ? '앞쪽' : deflectZ < -.15 ? '뒤쪽' : '중앙';
+      const status = state.thomsonBeamRunning ? '빔 진행 중' : '대기 중';
+      text(formatMsg('cathodeObservation', { status, dirY, dirZ }), 480, 479, state.lang === 'vi' ? 15 : 17, '#f8fafc');
+      text(formatMsg('currentPath', { dirY, dirZ }), 480, 504, 16, '#cbd5e1');
+    }
+
+    function drawRutherfordModel() {
+      const pal = getPal();
+      drawAtomLabel('러더퍼드: 원자핵과 전자 운동');
+      const nucleusGrad = ctx.createRadialGradient(CX - 22, CY - 22, 2, CX, CY, 56);
+      nucleusGrad.addColorStop(0, '#fff7ed');
+      nucleusGrad.addColorStop(.23, pal.nucleus);
+      nucleusGrad.addColorStop(1, '#7c2d12');
+      circle(CX, CY, 52, nucleusGrad, '#fff', 3);
+      text('원자핵 +', CX, CY + 76, 19, '#f8fafc');
+
+      // 원자모형 모드에서는 불필요한 흰 가로선/대각선을 그리지 않습니다.
+      ctx.save();
+      ctx.strokeStyle = 'rgba(226,232,240,.42)';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([6, 8]);
+      ctx.beginPath();
+      ctx.arc(CX, CY, state.rutherfordRadius, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+
+      state.rutherfordElectronAngle += .027;
+      if (state.rutherfordCollapsing && !state.rutherfordCollapsed) {
+        state.rutherfordRadius -= 0.72;
+        if (state.rutherfordRadius <= 58) {
+          state.rutherfordRadius = 58;
+          state.rutherfordCollapsed = true;
+          state.rutherfordCollapsing = false;
+        }
+      }
+      const ex = CX + Math.cos(state.rutherfordElectronAngle) * state.rutherfordRadius;
+      const ey = CY + Math.sin(state.rutherfordElectronAngle) * state.rutherfordRadius;
+
+      if (state.rutherfordRadius < 150) {
+        ctx.save();
+        ctx.strokeStyle = 'rgba(251,191,36,.72)';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        for (let i = 0; i < 260; i++) {
+          const a = state.rutherfordElectronAngle - i * .075;
+          const r = Math.max(58, state.rutherfordRadius + i * .42);
+          const x = CX + Math.cos(a) * r;
+          const y = CY + Math.sin(a) * r;
+          if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      circle(ex, ey, 16, pal.electron, '#fff', 2);
+      text('전자', ex + 36, ey, 16, '#f8fafc', 'left');
+
+      if (state.rutherfordCollapsing || state.rutherfordCollapsed) {
+        ctx.save();
+        ctx.strokeStyle = 'rgba(248,113,113,.8)';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(ex, ey);
+        ctx.lineTo(CX, CY);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      const message = state.rutherfordCollapsed
+        ? '한계: 이 생각대로라면 전자가 원자핵에 빨려 들어가 원자가 안정할 수 없습니다.'
+        : state.rutherfordCollapsing
+          ? '전자 붕괴 시뮬레이션: 전자가 에너지를 잃고 원자핵으로 가까워집니다.'
+          : '전자 운동 보기: 러더퍼드 모형은 원자핵을 제시했지만 안정한 전자를 설명하기 어려웠습니다.';
+      roundRect(88, 455, 784, 58, 16, 'rgba(15,23,42,.72)', state.rutherfordCollapsed ? pal.danger : 'rgba(148,163,184,.25)');
+      text(message, 480, 484, 18, '#f8fafc');
+    }
+
+    function spawnAlpha(count = 1) {
+      for (let i = 0; i < count; i++) {
+        const spread = state.alphaSpread;
+        const y0 = CY + (Math.random() - .5) * spread * 2;
+        const b = y0 - CY;
+        const closeness = Math.abs(b);
+        let type = 'straight';
+        if (closeness < 16 + state.alphaCharge * .1) type = 'bounced';
+        else if (closeness < 42 + state.alphaCharge * .6) type = 'deflected';
+        state.alphaCounts[type]++;
+        state.alphaParticles.push({
+          t: 0,
+          y0,
+          b,
+          type,
+          sign: b >= 0 ? 1 : -1,
+          speed: 0.008 + Math.random() * .006,
+          path: []
+        });
+      }
+    }
+
+    function alphaPosition(p) {
+      const u = Math.min(1, p.t);
+      const startX = 80, foilX = CX, endX = 895;
+      if (p.type === 'straight') {
+        return { x: startX + (endX - startX) * u, y: p.y0 + p.sign * state.alphaCharge * 0.08 * Math.max(0, u - .48) };
+      }
+      if (p.type === 'deflected') {
+        const x = startX + (endX - startX) * u;
+        const bend = p.sign * (70 + state.alphaCharge * .9) * Math.pow(Math.max(0, u - .42), 1.55);
+        const near = -p.sign * 25 * Math.exp(-Math.pow((u - .5) / .07, 2));
+        return { x, y: p.y0 + bend + near };
+      }
+      // bounced: approach nucleus, then turn back
+      if (u < .5) {
+        const k = u / .5;
+        return { x: startX + (foilX - startX - 38) * k, y: p.y0 - p.sign * 22 * k };
+      }
+      const k = (u - .5) / .5;
+      return { x: foilX - 38 - 360 * k, y: p.y0 - p.sign * 22 + p.sign * 125 * k };
+    }
+
+    function drawRutherfordScattering() {
+      const pal = getPal();
+      drawAtomLabel('러더퍼드: 알파 입자 산란 실험');
+      roundRect(62, 108, 135, 330, 18, 'rgba(15,23,42,.65)', 'rgba(148,163,184,.25)');
+      text('알파 입자', 130, 142, 18, pal.alpha);
+      text('발사 장치', 130, 170, 16, '#cbd5e1');
+      ctx.save();
+      ctx.strokeStyle = 'rgba(250,204,21,.25)';
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(197, CY); ctx.lineTo(CX - 22, CY); ctx.stroke();
+      ctx.restore();
+
+      ctx.save();
+      ctx.strokeStyle = 'rgba(250,204,21,.9)';
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      ctx.moveTo(CX, 115); ctx.lineTo(CX, 445); ctx.stroke();
+      ctx.restore();
+      text('얇은 금박', CX, 86, 18, '#facc15');
+
+      const nucleusGrad = ctx.createRadialGradient(CX - 10, CY - 12, 2, CX, CY, 34);
+      nucleusGrad.addColorStop(0, '#fff'); nucleusGrad.addColorStop(.28, pal.nucleus); nucleusGrad.addColorStop(1, '#7c2d12');
+      circle(CX, CY, 32, nucleusGrad, '#fff', 2);
+      text('+ 핵', CX, CY + 55, 17, '#f8fafc');
+
+      // detector arc
+      ctx.save();
+      ctx.strokeStyle = 'rgba(56,189,248,.35)';
+      ctx.lineWidth = 8;
+      ctx.beginPath();
+      ctx.arc(CX, CY, 325, -1.15, 1.15);
+      ctx.stroke();
+      ctx.restore();
+      text('검출 화면', CX + 330, CY, 16, pal.cloud, 'left');
+
+      function strokeAlphaPath(path, type, alpha = 1) {
+        if (!path || path.length < 2) return;
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.strokeStyle = type === 'bounced' ? 'rgba(248,113,113,.72)' : type === 'deflected' ? 'rgba(251,191,36,.62)' : 'rgba(52,211,153,.42)';
+        ctx.lineWidth = type === 'straight' ? 1.8 : 2.4;
+        ctx.beginPath();
+        path.forEach((q, idx) => idx === 0 ? ctx.moveTo(q.x, q.y) : ctx.lineTo(q.x, q.y));
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // 이미 지나간 알파 입자의 경로를 남겨 둡니다.
+      for (const tr of state.alphaTrails) strokeAlphaPath(tr.path, tr.type, .92);
+
+      for (let i = state.alphaParticles.length - 1; i >= 0; i--) {
+        const p = state.alphaParticles[i];
+        p.t += p.speed;
+        const pos = alphaPosition(p);
+        p.path.push(pos);
+        strokeAlphaPath(p.path, p.type, 1);
+        circle(pos.x, pos.y, 7, pal.alpha, '#fff', 1.5);
+        if (p.t > 1.08) {
+          state.alphaTrails.push({ path: p.path.slice(), type: p.type });
+          if (state.alphaTrails.length > 180) state.alphaTrails.shift();
+          state.alphaParticles.splice(i, 1);
+        }
+      }
+
+      roundRect(104, 464, 752, 58, 16, 'rgba(15,23,42,.74)', 'rgba(148,163,184,.25)');
+      text(formatMsg('alphaCounts', state.alphaCounts), 480, 493, state.lang === 'vi' ? 18 : 21, '#f8fafc');
+    }
+
+    function drawPhotonArrow(x0, y0, x1, y1, color) {
+      const angle = Math.atan2(y1 - y0, x1 - x0);
+      const headLen = 34;
+      const hx = x1;
+      const hy = y1;
+      ctx.save();
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.shadowColor = color;
+      ctx.shadowBlur = 22;
+
+      // 어두운 배경과 파동 위에서도 방향이 확실히 보이도록 흰 외곽선 → 검은 그림자 → 색 화살표 순서로 그립니다.
+      ctx.strokeStyle = 'rgba(255,255,255,.95)';
+      ctx.lineWidth = 15;
+      ctx.beginPath();
+      ctx.moveTo(x0, y0);
+      ctx.lineTo(x1, y1);
+      ctx.stroke();
+
+      ctx.strokeStyle = 'rgba(2,6,23,.85)';
+      ctx.lineWidth = 10;
+      ctx.beginPath();
+      ctx.moveTo(x0, y0);
+      ctx.lineTo(x1, y1);
+      ctx.stroke();
+
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 7;
+      ctx.beginPath();
+      ctx.moveTo(x0, y0);
+      ctx.lineTo(x1, y1);
+      ctx.stroke();
+
+      ctx.fillStyle = color;
+      ctx.strokeStyle = 'rgba(255,255,255,.95)';
+      ctx.lineWidth = 3.5;
+      ctx.beginPath();
+      ctx.moveTo(hx, hy);
+      ctx.lineTo(hx - Math.cos(angle - .55) * headLen, hy - Math.sin(angle - .55) * headLen);
+      ctx.lineTo(hx - Math.cos(angle) * 15, hy - Math.sin(angle) * 15);
+      ctx.lineTo(hx - Math.cos(angle + .55) * headLen, hy - Math.sin(angle + .55) * headLen);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawBohrOrbit() {
+      const pal = getPal();
+      drawAtomLabel('보어: 정해진 에너지 궤도');
+      const radii = [82, 145, 215];
+      ctx.save();
+      for (let i = 0; i < radii.length; i++) {
+        ctx.strokeStyle = i + 1 === state.bohrN ? 'rgba(250,204,21,.9)' : 'rgba(226,232,240,.36)';
+        ctx.lineWidth = i + 1 === state.bohrN ? 4 : 2;
+        ctx.beginPath(); ctx.arc(CX, CY, radii[i], 0, Math.PI * 2); ctx.stroke();
+        text(`n=${i+1}`, CX + radii[i] + 18, CY - 4, 16, '#cbd5e1', 'left', '600');
+      }
+      ctx.restore();
+      const grad = ctx.createRadialGradient(CX - 12, CY - 12, 2, CX, CY, 45);
+      grad.addColorStop(0, '#fff'); grad.addColorStop(.25, pal.nucleus); grad.addColorStop(1, '#7c2d12');
+      circle(CX, CY, 42, grad, '#fff', 2);
+      text('핵', CX, CY, 18, '#fff');
+      state.bohrAngle += .025 / state.bohrN;
+      const r = radii[state.bohrN - 1];
+      const ex = CX + Math.cos(state.bohrAngle) * r;
+      const ey = CY + Math.sin(state.bohrAngle) * r;
+      circle(ex, ey, 14, pal.electron, '#fff', 2);
+      text('전자', ex + 28, ey, 15, '#f8fafc', 'left');
+
+      if (state.bohrPhoton) {
+        const ph = state.bohrPhoton;
+        if (!ph.startedAt) ph.startedAt = performance.now();
+        const elapsed = performance.now() - ph.startedAt;
+        ph.t = elapsed / 1000;
+
+        const x0 = ph.kind === 'absorb' ? 120 : CX + 65;
+        const x1 = ph.kind === 'absorb' ? CX - 65 : 840;
+        const y0 = ph.kind === 'absorb' ? 125 : CY - 105;
+        const y1 = ph.kind === 'absorb' ? CY - 105 : 125;
+        const color = ph.kind === 'absorb' ? pal.wave : pal.cloud;
+        const label = ph.kind === 'absorb' ? '빛 흡수 방향' : '빛 방출 방향';
+
+        // 빛 파동: 약 1초 동안 화면에 남아 학생이 방향과 파동을 충분히 볼 수 있게 합니다.
+        ctx.save();
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.shadowColor = color;
+        ctx.shadowBlur = 18;
+
+        // 흰 외곽 파동을 먼저 그려 어두운 배경에서도 잘 보이게 합니다.
+        ctx.strokeStyle = 'rgba(255,255,255,.72)';
+        ctx.lineWidth = 10;
+        ctx.beginPath();
+        for (let i = 0; i < 90; i++) {
+          const u = i / 89;
+          const x = x0 + (x1 - x0) * u;
+          const y = y0 + (y1 - y0) * u + Math.sin(u * Math.PI * 10 + state.time * 8) * 11;
+          if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 5.5;
+        ctx.beginPath();
+        for (let i = 0; i < 90; i++) {
+          const u = i / 89;
+          const x = x0 + (x1 - x0) * u;
+          const y = y0 + (y1 - y0) * u + Math.sin(u * Math.PI * 10 + state.time * 8) * 11;
+          if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+        ctx.restore();
+
+        // 파동 바로 위에 굵은 방향 화살표를 크게 표시합니다.
+        const dirX0 = x0 + (x1 - x0) * .17;
+        const dirY0 = y0 + (y1 - y0) * .17 - 38;
+        const dirX1 = x0 + (x1 - x0) * .86;
+        const dirY1 = y0 + (y1 - y0) * .86 - 38;
+        drawPhotonArrow(dirX0, dirY0, dirX1, dirY1, color);
+
+        const labelX = (dirX0 + dirX1) / 2;
+        const labelY = (dirY0 + dirY1) / 2 - 30;
+        roundRect(labelX - 80, labelY - 22, 160, 34, 12, 'rgba(2,6,23,.82)', 'rgba(255,255,255,.65)');
+        text(label, labelX, labelY + 2, 20, color, 'center', '900');
+
+        if (elapsed > 1100) state.bohrPhoton = null;
+      }
+
+      roundRect(94, 462, 772, 58, 16, 'rgba(15,23,42,.72)', 'rgba(148,163,184,.25)');
+      text(formatMsg('bohrEnergy', { n: state.bohrN }), 480, 491, state.lang === 'vi' ? 16 : 18, '#f8fafc');
+    }
+
+    const hydrogenLines = [
+      { name: 'Hα', nm: 656, color: '#ff5b5b', x: 235, from: 3, to: 2 },
+      { name: 'Hβ', nm: 486, color: '#59a6ff', x: 420, from: 4, to: 2 },
+      { name: 'Hγ', nm: 434, color: '#7c7cff', x: 555, from: 5, to: 2 },
+      { name: 'Hδ', nm: 410, color: '#9b6dff', x: 665, from: 6, to: 2 }
+    ];
+
+    function drawHydrogenSpectrum() {
+      const pal = getPal();
+      drawAtomLabel('보어: 수소 선 스펙트럼');
+      state.spectrumPulse = (state.spectrumPulse + .025) % 1;
+
+      roundRect(72, 104, 816, 116, 28, 'rgba(15,23,42,.70)', 'rgba(148,163,184,.3)');
+      text('수소 기체 방전관', 190, 139, 18, '#e2e8f0');
+      ctx.save();
+      ctx.strokeStyle = 'rgba(56,189,248,.38)';
+      ctx.lineWidth = 16;
+      ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(295, 162); ctx.lineTo(690, 162); ctx.stroke();
+      ctx.strokeStyle = 'rgba(167,139,250,.45)';
+      ctx.lineWidth = 7;
+      ctx.beginPath(); ctx.moveTo(310, 162 + Math.sin(state.time*5)*2); ctx.lineTo(675, 162 + Math.cos(state.time*5)*2); ctx.stroke();
+      ctx.restore();
+      text('전기를 가하면 수소가 특정한 색의 빛만 냅니다.', 480, 210, 17, '#cbd5e1');
+
+      roundRect(88, 282, 784, 115, 14, '#050816', 'rgba(226,232,240,.55)');
+      text('프리즘을 통과한 뒤 보이는 선 스펙트럼', 480, 264, 18, '#f8fafc');
+      // spectrum ruler gradient background
+      const grad = ctx.createLinearGradient(110, 0, 850, 0);
+      grad.addColorStop(0, 'rgba(138,92,246,.25)');
+      grad.addColorStop(.35, 'rgba(59,130,246,.18)');
+      grad.addColorStop(.70, 'rgba(34,197,94,.14)');
+      grad.addColorStop(1, 'rgba(248,113,113,.20)');
+      roundRect(110, 315, 740, 35, 8, grad, 'rgba(255,255,255,.12)');
+
+      const activeNames = new Set(state.spectrumActiveLines);
+      const showAll = activeNames.has('all') || activeNames.size === 0;
+      for (const line of hydrogenLines) {
+        const active = showAll || activeNames.has(line.name);
+        ctx.save();
+        ctx.globalAlpha = active ? .95 : .18;
+        ctx.strokeStyle = line.color;
+        ctx.lineWidth = active ? 7 + Math.sin(state.spectrumPulse * Math.PI * 2) * 1.3 : 4;
+        ctx.beginPath(); ctx.moveTo(line.x, 298); ctx.lineTo(line.x, 382); ctx.stroke();
+        ctx.restore();
+        text(`${line.name}`, line.x, 412, 16, active ? line.color : '#94a3b8');
+        text(`${line.nm} nm`, line.x, 435, 14, active ? '#e2e8f0' : '#64748b');
+      }
+
+      // 오른쪽에 간단한 전이 그림
+      const ex = 790, ey = 162;
+      ctx.save();
+      ctx.strokeStyle = 'rgba(226,232,240,.32)';
+      ctx.lineWidth = 2;
+      for (let i = 0; i < 4; i++) {
+        const y = ey - 42 + i * 24;
+        ctx.beginPath(); ctx.moveTo(ex - 80, y); ctx.lineTo(ex + 50, y); ctx.stroke();
+        text(`n=${5-i}`, ex + 70, y + 4, 13, '#94a3b8', 'left');
+      }
+      ctx.strokeStyle = pal.wave;
+      ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(ex - 38, ey - 42); ctx.lineTo(ex - 38, ey + 30); ctx.stroke();
+      drawPhotonArrow(ex - 38, ey - 38, ex - 38, ey + 26, pal.wave);
+      ctx.restore();
+      text('높은 에너지 → 낮은 에너지: 빛 방출', ex - 16, ey + 70, 15, '#facc15');
+
+      roundRect(92, 464, 776, 58, 16, 'rgba(15,23,42,.72)', 'rgba(148,163,184,.25)');
+      text('수소는 모든 색을 연속적으로 내는 것이 아니라 몇 개의 선으로 된 빛을 냅니다.', 480, 488, 18, '#f8fafc');
+      text('보어 모형은 이 선 스펙트럼을 에너지 준위 전이로 설명했습니다.', 480, 512, 16, '#cbd5e1');
+    }
+
+    function drawBohr() {
+      if (state.bohrView === 'spectrum') drawHydrogenSpectrum();
+      else drawBohrOrbit();
+    }
+
+    function drawDeBroglie() {
+      const pal = getPal();
+      drawAtomLabel('드브로이: 전자의 물질파');
+      const baseR = 170;
+      const n = state.deBroglieN;
+      const k = state.deBroglieFit ? n : n + 0.42;
+      const amp = 20;
+      const phase = state.deBroglieAnimate ? state.time * 1.5 : 0;
+
+      const grad = ctx.createRadialGradient(CX - 12, CY - 12, 1, CX, CY, 42);
+      grad.addColorStop(0, '#fff'); grad.addColorStop(.25, pal.nucleus); grad.addColorStop(1, '#7c2d12');
+      circle(CX, CY, 40, grad, '#fff', 2);
+      text('핵', CX, CY, 17, '#fff');
+
+      ctx.save();
+      ctx.strokeStyle = 'rgba(226,232,240,.3)';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([7, 8]);
+      ctx.beginPath(); ctx.arc(CX, CY, baseR, 0, Math.PI * 2); ctx.stroke();
+      ctx.restore();
+
+      ctx.save();
+      ctx.strokeStyle = state.deBroglieFit ? pal.wave : pal.danger;
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      for (let i = 0; i <= 420; i++) {
+        const a = i / 420 * Math.PI * 2;
+        const r = baseR + amp * Math.sin(k * a + phase);
+        const x = CX + Math.cos(a) * r;
+        const y = CY + Math.sin(a) * r;
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+      ctx.restore();
+
+      if (!state.deBroglieFit) {
+        const a = Math.PI * 1.96;
+        const r1 = baseR + amp * Math.sin(k * a + phase);
+        const r2 = baseR + amp * Math.sin(k * 0 + phase);
+        const x1 = CX + Math.cos(a) * r1;
+        const y1 = CY + Math.sin(a) * r1;
+        const x2 = CX + Math.cos(0) * r2;
+        const y2 = CY + Math.sin(0) * r2;
+        ctx.save();
+        ctx.strokeStyle = pal.danger;
+        ctx.lineWidth = 4;
+        ctx.setLineDash([5, 5]);
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+        ctx.restore();
+        text('파동이 매끄럽게 이어지지 않음', CX, 110, 19, pal.danger);
+      } else {
+        text(formatMsg('deBroglieFit', { n }), CX, 110, 19, pal.wave);
+      }
+
+      roundRect(102, 464, 756, 58, 16, 'rgba(15,23,42,.72)', 'rgba(148,163,184,.25)');
+      const msg = state.deBroglieFit
+        ? '안정한 정상파: 전자의 파동이 자기 자신과 잘 맞물립니다.'
+        : '불안정한 파동: 한 바퀴 돌아왔을 때 파동이 어긋납니다.';
+      text(msg, 480, 493, 19, '#f8fafc');
+    }
+
+    function sampleModernPoint() {
+      if (state.modernOrbital === '1s') {
+        const a = Math.random() * Math.PI * 2;
+        const r = Math.min(260, -Math.log(1 - Math.random()) * 62 + Math.random() * 24);
+        return { x: CX + Math.cos(a) * r, y: CY + Math.sin(a) * r, orbital: '1s' };
+      }
+      const side = Math.random() < .5 ? -1 : 1;
+      const a = (side < 0 ? Math.PI : 0) + (Math.random() - .5) * 1.25;
+      const r = Math.min(250, 72 + -Math.log(1 - Math.random()) * 55);
+      const x = CX + side * (72 + Math.random() * 115) + Math.cos(a) * r * .28;
+      const y = CY + Math.sin(a) * r * .55 + (Math.random() - .5) * 35;
+      return { x, y, orbital: '2p' };
+    }
+
+    function addMeasurements(count) {
+      for (let i = 0; i < count; i++) state.measurePoints.push(sampleModernPoint());
+      if (state.measurePoints.length > 1300) state.measurePoints.splice(0, state.measurePoints.length - 1300);
+    }
+
+    function drawModernCloud() {
+      const pal = getPal();
+      drawAtomLabel('현대: 전자구름과 오비탈');
+
+      const brightness = state.cloudBrightness / 100;
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      if (state.modernOrbital === '1s') {
+        const glow = ctx.createRadialGradient(CX, CY, 8, CX, CY, 250);
+        glow.addColorStop(0, `rgba(45,212,255,${0.72 * brightness})`);
+        glow.addColorStop(.22, `rgba(56,189,248,${0.42 * brightness})`);
+        glow.addColorStop(.62, `rgba(99,102,241,${0.18 * brightness})`);
+        glow.addColorStop(1, `rgba(45,212,255,0)`);
+        ctx.fillStyle = state.colorblind ? glow : glow;
+        ctx.beginPath(); ctx.arc(CX, CY, 270, 0, Math.PI * 2); ctx.fill();
+        for (let i = 0; i < 2400; i++) {
+          const a = Math.random() * Math.PI * 2;
+          const r = Math.min(285, -Math.log(1 - Math.random()) * 72);
+          const x = CX + Math.cos(a) * r;
+          const y = CY + Math.sin(a) * r;
+          const alpha = Math.max(.035, (1 - r / 300) * .24) * brightness + .018;
+          ctx.fillStyle = `rgba(${state.colorblind ? '86,180,233' : '45,212,255'},${alpha})`;
+          ctx.beginPath(); ctx.arc(x, y, 1.8 + brightness * 2.5, 0, Math.PI * 2); ctx.fill();
+        }
+      } else {
+        const drawLobe = (cx, cy, rx, ry, color) => {
+          const g = ctx.createRadialGradient(cx, cy, 10, cx, cy, rx);
+          g.addColorStop(0, color.replace('ALPHA', 0.70 * brightness));
+          g.addColorStop(.45, color.replace('ALPHA', 0.32 * brightness));
+          g.addColorStop(1, color.replace('ALPHA', 0));
+          ctx.fillStyle = g;
+          ctx.beginPath();
+          ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+          ctx.fill();
+        };
+        drawLobe(CX - 110, CY, 170, 105, state.colorblind ? 'rgba(86,180,233,ALPHA)' : 'rgba(45,212,255,ALPHA)');
+        drawLobe(CX + 110, CY, 170, 105, state.colorblind ? 'rgba(204,121,167,ALPHA)' : 'rgba(167,139,250,ALPHA)');
+        for (let i = 0; i < 2600; i++) {
+          const side = Math.random() < .5 ? -1 : 1;
+          const x = CX + side * (60 + Math.random() * 165) + (Math.random() - .5) * 48;
+          const y = CY + (Math.random() - .5) * (135 - Math.abs(x - CX) * .18);
+          const alpha = (.055 + Math.random() * .11) * brightness + .018;
+          ctx.fillStyle = side < 0
+            ? `rgba(${state.colorblind ? '86,180,233' : '45,212,255'},${alpha})`
+            : `rgba(${state.colorblind ? '204,121,167' : '167,139,250'},${alpha})`;
+          ctx.beginPath(); ctx.arc(x, y, 1.7 + brightness * 2.4, 0, Math.PI * 2); ctx.fill();
+        }
+        ctx.save();
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.strokeStyle = 'rgba(255,255,255,.35)';
+        ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(CX, CY - 142); ctx.lineTo(CX, CY + 142); ctx.stroke();
+        text('마디면', CX + 14, CY - 125, 15, '#e2e8f0', 'left', '600');
+        ctx.restore();
+      }
+      ctx.restore();
+
+      const grad = ctx.createRadialGradient(CX - 8, CY - 8, 1, CX, CY, 34);
+      grad.addColorStop(0, '#fff'); grad.addColorStop(.25, pal.nucleus); grad.addColorStop(1, '#7c2d12');
+      circle(CX, CY, 32, grad, '#fff', 2);
+      text('핵', CX, CY, 16, '#fff');
+
+      for (const p of state.measurePoints) {
+        const color = p.orbital === '2p' && p.x > CX ? pal.cloud2 : pal.cloud;
+        circle(p.x, p.y, 5.2, color, 'rgba(255,255,255,.85)', 1);
+      }
+
+      roundRect(88, 460, 784, 62, 16, 'rgba(15,23,42,.74)', 'rgba(148,163,184,.25)');
+      text(`전자구름 밝기 ${state.cloudBrightness}% · 측정 횟수 ${state.measurePoints.length}회`, 480, 483, 19, '#f8fafc');
+      text('측정 전에는 확률로 설명하고, 측정하면 한 위치의 점으로 나타납니다.', 480, 510, 16, '#cbd5e1', 'center', '600');
+    }
+
+    function render() {
+      state.time += 0.016;
+      clearCanvas();
+      if (state.model === 'dalton') drawDalton();
+      if (state.model === 'thomson') state.thomsonMode === 'model' ? drawThomsonModel() : drawCathodeExperiment();
+      if (state.model === 'rutherford') state.rutherfordMode === 'model' ? drawRutherfordModel() : drawRutherfordScattering();
+      if (state.model === 'bohr') drawBohr();
+      if (state.model === 'debroglie') drawDeBroglie();
+      if (state.model === 'modern') drawModernCloud();
+      requestAnimationFrame(render);
+    }
+
+    function updateInfo() {
+      const d = getModelData(state.model);
+      infoTitle.textContent = d.title;
+      mainIdea.textContent = state.explain === 'easy' ? d.easy : d.deep;
+      questionText.textContent = d.question;
+      limitText.textContent = d.limit;
+      imageDesc.textContent = state.desc ? d.desc : tr('그림 설명 보기가 꺼져 있습니다.');
+      natureText.textContent = d.nature;
+      document.querySelectorAll('.model-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.model === state.model));
+      renderTimeline();
+      renderControls();
+    }
+
+    function button(label, onClick, cls = '') {
+      const b = document.createElement('button');
+      b.textContent = tr(label);
+      if (cls) b.className = cls;
+      b.addEventListener('click', onClick);
+      return b;
+    }
+
+    function slider(labelText, min, max, value, onInput, suffix = '') {
+      const label = document.createElement('label');
+      label.className = 'slider-block';
+      const span = document.createElement('span');
+      span.textContent = tr(labelText);
+      const range = document.createElement('input');
+      range.type = 'range'; range.min = min; range.max = max; range.value = value;
+      const out = document.createElement('strong');
+      out.textContent = value + suffix;
+      range.addEventListener('input', () => { out.textContent = range.value + suffix; onInput(Number(range.value)); });
+      label.append(span, range, out);
+      return label;
+    }
+
+    function group(title, children) {
+      const div = document.createElement('div');
+      div.className = 'control-group';
+      const h = document.createElement('h3');
+      h.textContent = tr(title);
+      const row = document.createElement('div');
+      row.className = 'button-row';
+      children.forEach(ch => row.appendChild(ch));
+      div.append(h, row);
+      return div;
+    }
+
+    function setActiveWithin(container, predicate) {
+      container.querySelectorAll('button').forEach(btn => btn.classList.toggle('active', predicate(btn)));
+    }
+
+    function renderControls() {
+      dynamicControls.innerHTML = '';
+      if (state.model === 'dalton') {
+        const buttons = Object.entries(getElementData()).map(([key, val]) => {
+          const b = button(val.name, () => { state.daltonElement = key; renderControls(); }, key === state.daltonElement ? 'active' : '');
+          b.dataset.key = key;
+          return b;
+        });
+        dynamicControls.append(group('돌턴 체험: 원소에 따라 공의 크기와 색 바꾸기', buttons));
+        canvasCaption.textContent = tr('돌턴 모형: 원소 버튼을 누르면 공 모양 원자의 크기와 색이 바뀝니다.');
+      }
+
+      if (state.model === 'thomson') {
+        const modeRow = group('톰슨 체험 선택', [
+          button('원자모형 보기: 건포도 푸딩 모형', () => { state.thomsonMode = 'model'; renderControls(); }, state.thomsonMode === 'model' ? 'active' : ''),
+          button('실험 보기: 음극선 실험', () => { state.thomsonMode = 'cathode'; renderControls(); }, state.thomsonMode === 'cathode' ? 'active' : '')
+        ]);
+        dynamicControls.append(modeRow);
+        if (state.thomsonMode === 'model') {
+          dynamicControls.append(group('건포도 푸딩 조작', [
+            button('전자 1개 추가', () => { const a = Math.random()*Math.PI*2; const r = Math.sqrt(Math.random())*130; state.thomsonElectrons.push({x:Math.cos(a)*r,y:Math.sin(a)*r}); }, 'good'),
+            button('전자 1개 제거', () => { state.thomsonElectrons.pop(); }, 'warning'),
+            button('처음 상태', () => { setupThomsonElectrons(); }, '')
+          ]));
+        } else {
+          dynamicControls.append(group('음극선 조작', [
+            slider('전기장', -100, 100, state.eField, v => state.eField = v),
+            slider('자기장', -100, 100, state.bField, v => state.bField = v),
+            slider('가속 전압', 10, 100, state.voltage, v => state.voltage = v, '%'),
+            button('빔 시작', () => { state.thomsonBeamRunning = true; state.thomsonSingleShot = false; if (state.thomsonParticles.length === 0) spawnCathodeParticles(10); }, 'primary'),
+            button('빔 한 번 쏘기', () => { state.thomsonParticles = []; state.thomsonBeamRunning = true; state.thomsonSingleShot = true; spawnCathodeParticles(18); }, 'good'),
+            button('정지', () => { state.thomsonBeamRunning = false; }, 'warning'),
+            button('전자 빔 지우기', () => { state.thomsonParticles = []; state.thomsonBeamRunning = false; state.thomsonSingleShot = false; }, 'danger')
+          ]));
+        }
+        canvasCaption.textContent = tr('톰슨 모형: 원자모형 보기와 음극선 실험을 버튼으로 전환할 수 있습니다.');
+      }
+
+      if (state.model === 'rutherford') {
+        dynamicControls.append(group('러더퍼드 체험 선택', [
+          button('원자모형 보기: 전자 운동과 붕괴 한계', () => { state.rutherfordMode = 'model'; renderControls(); }, state.rutherfordMode === 'model' ? 'active' : ''),
+          button('실험 보기: 알파 입자 산란 실험', () => { state.rutherfordMode = 'scattering'; renderControls(); }, state.rutherfordMode === 'scattering' ? 'active' : '')
+        ]));
+        if (state.rutherfordMode === 'model') {
+          dynamicControls.append(group('전자 운동 조작', [
+            button('전자 붕괴 시뮬레이션 시작', () => { state.rutherfordCollapsing = true; state.rutherfordCollapsed = false; }, 'warning'),
+            button('전자 궤도 다시 시작', () => { state.rutherfordRadius = 160; state.rutherfordCollapsing = false; state.rutherfordCollapsed = false; }, 'good')
+          ]));
+        } else {
+          dynamicControls.append(group('알파 입자 산란 조작', [
+            slider('원자핵 양전하 세기', 20, 100, state.alphaCharge, v => state.alphaCharge = v, '%'),
+            slider('알파 빔 퍼짐', 40, 190, state.alphaSpread, v => state.alphaSpread = v),
+            button('알파 입자 1개 쏘기', () => spawnAlpha(1), 'primary'),
+            button('알파 입자 50개 쏘기', () => spawnAlpha(50), 'primary'),
+            button('경로 지우기', () => { state.alphaParticles = []; state.alphaTrails = []; state.alphaCounts = { straight: 0, deflected: 0, bounced: 0 }; }, 'danger')
+          ]));
+        }
+        canvasCaption.textContent = tr('러더퍼드 모형: 원자모형 모드에서는 전자의 운동과 붕괴 한계를, 실험 모드에서는 알파 입자 산란을 볼 수 있습니다.');
+      }
+
+      if (state.model === 'bohr') {
+        dynamicControls.append(group('보어 체험 선택', [
+          button('원자모형 보기: 에너지 준위', () => { state.bohrView = 'orbit'; renderControls(); }, state.bohrView === 'orbit' ? 'active' : ''),
+          button('실험 보기: 수소 선 스펙트럼', () => { state.bohrView = 'spectrum'; renderControls(); }, state.bohrView === 'spectrum' ? 'active' : '')
+        ]));
+        if (state.bohrView === 'orbit') {
+          dynamicControls.append(group('에너지 준위와 빛 조작', [
+            button('n=1', () => { state.bohrN = 1; renderControls(); }, state.bohrN === 1 ? 'active' : ''),
+            button('n=2', () => { state.bohrN = 2; renderControls(); }, state.bohrN === 2 ? 'active' : ''),
+            button('n=3', () => { state.bohrN = 3; renderControls(); }, state.bohrN === 3 ? 'active' : ''),
+            button('빛 흡수: 높은 궤도', () => { if (state.bohrN < 3) state.bohrN++; state.bohrPhoton = { kind:'absorb', t:0, startedAt: performance.now() }; renderControls(); }, 'good'),
+            button('빛 방출: 낮은 궤도', () => { if (state.bohrN > 1) state.bohrN--; state.bohrPhoton = { kind:'emit', t:0, startedAt: performance.now() }; renderControls(); }, 'warning')
+          ]));
+        } else {
+          dynamicControls.append(group('수소 선 스펙트럼 조작', [
+            button('전체 선 보기', () => { state.spectrumActiveLines = ['all']; renderControls(); }, state.spectrumActiveLines.includes('all') || state.spectrumActiveLines.length === 0 ? 'active' : ''),
+            button('Hα 656 nm', () => { state.spectrumActiveLines = ['Hα']; renderControls(); }, state.spectrumActiveLines.includes('Hα') ? 'active' : ''),
+            button('Hβ 486 nm', () => { state.spectrumActiveLines = ['Hβ']; renderControls(); }, state.spectrumActiveLines.includes('Hβ') ? 'active' : ''),
+            button('Hγ 434 nm', () => { state.spectrumActiveLines = ['Hγ']; renderControls(); }, state.spectrumActiveLines.includes('Hγ') ? 'active' : ''),
+            button('Hδ 410 nm', () => { state.spectrumActiveLines = ['Hδ']; renderControls(); }, state.spectrumActiveLines.includes('Hδ') ? 'active' : '')
+          ]));
+        }
+        canvasCaption.textContent = tr('보어 모형: 에너지 준위 전이와 수소 선 스펙트럼을 탐구할 수 있습니다.');
+      }
+
+      if (state.model === 'debroglie') {
+        dynamicControls.append(group('드브로이 체험: 전자 물질파와 정상파 조건', [
+          button('n=1', () => { state.deBroglieN = 1; renderControls(); }, state.deBroglieN === 1 ? 'active' : ''),
+          button('n=2', () => { state.deBroglieN = 2; renderControls(); }, state.deBroglieN === 2 ? 'active' : ''),
+          button('n=3', () => { state.deBroglieN = 3; renderControls(); }, state.deBroglieN === 3 ? 'active' : ''),
+          button('n=4', () => { state.deBroglieN = 4; renderControls(); }, state.deBroglieN === 4 ? 'active' : ''),
+          button(state.deBroglieFit ? '맞지 않는 파장 보기' : '파장이 딱 맞게 보기', () => { state.deBroglieFit = !state.deBroglieFit; renderControls(); }, state.deBroglieFit ? 'good' : 'warning'),
+          button(state.deBroglieAnimate ? '파동 멈추기' : '파동 움직이기', () => { state.deBroglieAnimate = !state.deBroglieAnimate; renderControls(); })
+        ]));
+        canvasCaption.textContent = tr('드브로이 모형: 전자를 파동으로 보고, 파동이 원 둘레에 매끄럽게 이어지는 조건을 탐구합니다.');
+      }
+
+      if (state.model === 'modern') {
+        dynamicControls.append(group('현대 원자모형 체험: 오비탈과 측정', [
+          button('1s 전자구름', () => { state.modernOrbital = '1s'; state.measurePoints = []; renderControls(); }, state.modernOrbital === '1s' ? 'active' : ''),
+          button('2p 오비탈', () => { state.modernOrbital = '2p'; state.measurePoints = []; renderControls(); }, state.modernOrbital === '2p' ? 'active' : ''),
+          slider('전자구름 밝기', 20, 100, state.cloudBrightness, v => state.cloudBrightness = v, '%'),
+          button('측정 1회', () => addMeasurements(1), 'primary'),
+          button('측정 10회', () => addMeasurements(10), 'primary'),
+          button('측정 100회', () => addMeasurements(100), 'primary'),
+          button('측정 점 지우기', () => { state.measurePoints = []; }, 'danger')
+        ]));
+        canvasCaption.textContent = tr('현대 원자모형: 밝은 곳은 전자가 발견될 가능성이 큰 곳입니다. 측정을 반복하면 점들이 전자구름 모양으로 쌓입니다.');
+      }
+    }
+
+    function renderTimeline() {
+      const grid = document.getElementById('timelineGrid');
+      grid.innerHTML = '';
+      const order = ['dalton','thomson','rutherford','bohr','debroglie','modern'];
+      order.forEach((key, idx) => {
+        const card = document.createElement('button');
+        card.className = 'time-card' + (state.model === key ? ' active' : '');
+        const d = getModelData(key);
+        card.setAttribute('aria-label', state.lang === 'ko' ? `${d.title} 선택` : `Select ${d.title}`);
+        const shortTitle = d.title.replace(' 원자모형','').replace(' Atomic Model','').replace('原子模型','').replace('原子モデル','').replace('の原子模型','').replace('Mô hình nguyên tử ','').replace('Mô hình ','');
+        card.innerHTML = `<strong>${idx + 1}. ${shortTitle}</strong><p>${d.short}</p>`;
+        card.addEventListener('click', () => setModel(key));
+        grid.appendChild(card);
+      });
+    }
+
+    function setModel(model) {
+      state.model = model;
+      updateInfo();
+      canvas.focus({ preventScroll: true });
+    }
+
+
+
+    document.getElementById('langKoBtn').addEventListener('click', () => setLanguage('ko'));
+    document.getElementById('langEnBtn').addEventListener('click', () => setLanguage('en'));
+    document.getElementById('langZhBtn').addEventListener('click', () => setLanguage('zh'));
+    document.getElementById('langJaBtn').addEventListener('click', () => setLanguage('ja'));
+    document.getElementById('langViBtn').addEventListener('click', () => setLanguage('vi'));
+    document.getElementById('langMoreBtn').addEventListener('click', () => setLanguage('more'));
+
+    document.querySelectorAll('.model-btn').forEach(btn => {
+      btn.addEventListener('click', () => setModel(btn.dataset.model));
+    });
+
+    document.getElementById('easyBtn').addEventListener('click', () => {
+      state.explain = 'easy';
+      document.getElementById('easyBtn').classList.add('active');
+      document.getElementById('deepBtn').classList.remove('active');
+      updateInfo();
+    });
+    document.getElementById('deepBtn').addEventListener('click', () => {
+      state.explain = 'deep';
+      document.getElementById('deepBtn').classList.add('active');
+      document.getElementById('easyBtn').classList.remove('active');
+      updateInfo();
+    });
+
+    document.getElementById('fontUpBtn').addEventListener('click', () => {
+      state.font = Math.min(23, state.font + 1);
+      document.documentElement.style.setProperty('--base-font', state.font + 'px');
+    });
+    document.getElementById('fontDownBtn').addEventListener('click', () => {
+      state.font = Math.max(14, state.font - 1);
+      document.documentElement.style.setProperty('--base-font', state.font + 'px');
+    });
+    document.getElementById('contrastToggle').addEventListener('change', e => document.body.classList.toggle('high-contrast', e.target.checked));
+    document.getElementById('colorblindToggle').addEventListener('change', e => { state.colorblind = e.target.checked; document.body.classList.toggle('colorblind', e.target.checked); });
+    document.getElementById('descToggle').addEventListener('change', e => { state.desc = e.target.checked; updateInfo(); });
+
+    document.getElementById('speakBtn').addEventListener('click', () => {
+      if (!('speechSynthesis' in window)) {
+        alert(tr('이 브라우저에서는 음성 설명을 지원하지 않을 수 있습니다.'));
+        return;
+      }
+      window.speechSynthesis.cancel();
+      const d = getModelData(state.model);
+      const tx = uiText[state.lang] || uiText.ko;
+      const utter = new SpeechSynthesisUtterance(`${d.title}. ${state.explain === 'easy' ? d.easy : d.deep}. ${tx.questionPrefix} ${d.question}`);
+      utter.lang = tx.speechLang;
+      utter.rate = .88;
+      window.speechSynthesis.speak(utter);
+    });
+
+    document.getElementById('stopSpeakBtn').addEventListener('click', () => {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        if (window.speechSynthesis.paused) window.speechSynthesis.resume();
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)) return;
+      const map = { '1':'dalton', '2':'thomson', '3':'rutherford', '4':'bohr', '5':'debroglie', '6':'modern' };
+      if (map[e.key]) setModel(map[e.key]);
+      if (e.key.toLowerCase() === 'm') {
+        if (state.model !== 'modern') setModel('modern');
+        addMeasurements(1);
+      }
+      if (e.key.toLowerCase() === 'c') {
+        state.measurePoints = [];
+        state.alphaParticles = [];
+        state.alphaCounts = { straight: 0, deflected: 0, bounced: 0 };
+      }
+      if (e.key.toLowerCase() === 's') {
+        if (state.model === 'modern') addMeasurements(10);
+        if (state.model === 'rutherford' && state.rutherfordMode === 'scattering') spawnAlpha(20);
+        if (state.model === 'rutherford' && state.rutherfordMode === 'model') state.rutherfordCollapsing = true;
+        if (state.model === 'thomson' && state.thomsonMode === 'cathode') { state.thomsonBeamRunning = true; state.thomsonSingleShot = true; state.thomsonParticles = []; spawnCathodeParticles(18); }
+      }
+    });
+
+    // 활동 저장
+    document.getElementById('saveTextBtn').addEventListener('click', () => {
+      const textValue = document.getElementById('responseBox').value || tr('아직 작성한 내용이 없습니다.');
+      const blob = new Blob([textValue], { type: 'text/plain;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = '나의_원자모형_생각.txt';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
+    document.getElementById('clearTextBtn').addEventListener('click', () => document.getElementById('responseBox').value = '');
+
+    // 그림판
+    const drawCanvas = document.getElementById('drawCanvas');
+    const dctx = drawCanvas.getContext('2d');
+    let drawing = false;
+    function initDrawCanvas() {
+      dctx.fillStyle = '#ffffff';
+      dctx.fillRect(0, 0, drawCanvas.width, drawCanvas.height);
+      dctx.strokeStyle = '#111827';
+      dctx.lineWidth = 4;
+      dctx.lineCap = 'round';
+      dctx.lineJoin = 'round';
+    }
+    initDrawCanvas();
+    function drawPointFromEvent(e) {
+      const rect = drawCanvas.getBoundingClientRect();
+      const pointer = e.touches ? e.touches[0] : e;
+      return { x: (pointer.clientX - rect.left) * drawCanvas.width / rect.width, y: (pointer.clientY - rect.top) * drawCanvas.height / rect.height };
+    }
+    function startDraw(e) { drawing = true; const p = drawPointFromEvent(e); dctx.beginPath(); dctx.moveTo(p.x, p.y); e.preventDefault(); }
+    function moveDraw(e) { if (!drawing) return; const p = drawPointFromEvent(e); dctx.lineTo(p.x, p.y); dctx.stroke(); e.preventDefault(); }
+    function endDraw() { drawing = false; }
+    drawCanvas.addEventListener('mousedown', startDraw);
+    drawCanvas.addEventListener('mousemove', moveDraw);
+    window.addEventListener('mouseup', endDraw);
+    drawCanvas.addEventListener('touchstart', startDraw, { passive: false });
+    drawCanvas.addEventListener('touchmove', moveDraw, { passive: false });
+    window.addEventListener('touchend', endDraw);
+    document.getElementById('clearDrawBtn').addEventListener('click', initDrawCanvas);
+    document.getElementById('saveDrawBtn').addEventListener('click', () => {
+      const a = document.createElement('a');
+      a.href = drawCanvas.toDataURL('image/png');
+      a.download = '내가_생각한_원자모형.png';
+      a.click();
+    });
+
+    applyLanguage();
+    updateInfo();
+    spawnCathodeParticles(18);
+    render();
+  </script>
+</body>
+</html>
