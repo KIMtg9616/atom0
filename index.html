@@ -2088,16 +2088,27 @@
       }
     }
 
-    function text(str, x, y, size = 18, color = '#fff', align = 'center', weight = '700') {
-      str = tr(str);
-      ctx.save();
-      ctx.font = `${weight} ${size}px "Noto Sans KR", system-ui, sans-serif`;
-      ctx.fillStyle = color;
-      ctx.textAlign = align;
-      ctx.textBaseline = 'middle';
-      ctx.fillText(str, x, y);
-      ctx.restore();
-    }
+    function text(str, x, y, size = 18, color = '#fff', align = 'center', weight = '700', lineHeight = null) {
+  ctx.save();
+
+  ctx.font = `${weight} ${size}px "Noto Sans KR", system-ui, sans-serif`;
+  ctx.fillStyle = color;
+  ctx.textAlign = align;
+  ctx.textBaseline = 'middle';
+
+  const lines = String(str)
+    .replace(/<br\s*\/?>/gi, '\n')
+    .split('\n');
+
+  const lh = lineHeight || size * 1.35;
+  const startY = y - ((lines.length - 1) * lh) / 2;
+
+  lines.forEach((line, i) => {
+    ctx.fillText(line, x, startY + i * lh);
+  });
+
+  ctx.restore();
+}
 
     function roundRect(x, y, w, h, r, fill, stroke = null) {
       ctx.save();
